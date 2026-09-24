@@ -88,6 +88,8 @@
         cp ${./site/renders/index.html} $out/renders/index.html
         cp ${./timing/captions.vtt} $out/renders/captions.vtt
         cp ${./timing/timeline.json} $out/renders/timeline.json
+        cp ${./timing/readalong.json} $out/renders/readalong.json
+        cp ${./site/lit-html.ts} $out/renders/lit-html.ts
         cp ${poster} $out/renders/poster.jpg
         cp ${video} $out/renders/lit-html-renders.mp4
         # the renderer itself, live in the browser
