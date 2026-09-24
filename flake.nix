@@ -14,9 +14,14 @@
       url = "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/f785f5347917619410dee933436422fe/poster.jpg";
       flake = false;
     };
+    # The rendered video (`nix run .#render -- video --fps 60`).
+    video = {
+      url = "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/a2f4aacb74f02ff594fee0bf2a714f12/lit-html-renders.mp4";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, soundtrack, poster }:
+  outputs = { self, nixpkgs, soundtrack, poster, video }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
@@ -69,6 +74,7 @@
         cp ${./timing/captions.vtt} $out/captions.vtt
         cp ${./timing/timeline.json} $out/timeline.json
         cp ${poster} $out/poster.jpg
+        cp ${video} $out/lit-html-renders.mp4
         cp ${./video/index.html} $out/live/index.html
         cp -r ${./video/src} $out/live/video/src
         cp ${./timing/timeline.json} $out/live/timing/timeline.json
