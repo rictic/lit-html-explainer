@@ -7,7 +7,7 @@
     # The mixed soundtrack (narration + music, `python pipeline/mix.py`), and
     # the poster frame (the title card). Generated once; pinned here.
     soundtrack = {
-      url = "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/94b925e76c39821e70b52142cd0a43e1/soundtrack.flac";
+      url = "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/05de91ef24297dda3a04576de7f52999/soundtrack.flac";
       flake = false;
     };
     poster = {
@@ -16,7 +16,7 @@
     };
     # The rendered video (`nix run .#render -- video --fps 60`).
     video = {
-      url = "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/a2f4aacb74f02ff594fee0bf2a714f12/lit-html-renders.mp4";
+      url = "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/4b644ab8b5864d3e060ba7b0546379ed/lit-html-renders.mp4";
       flake = false;
     };
   };

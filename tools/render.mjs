@@ -97,7 +97,7 @@ function startServer(port = 0) {
     try {
       if (req.method === "GET") {
         if (p === "/" ) return serveFile(res, join(REPO, "video/index.html"));
-        if (p === "/soundtrack.m4a") return serveFile(res, AUDIO);
+        if (p === "/soundtrack.m4a" || p === `/soundtrack-${EPISODE}.m4a`) return serveFile(res, AUDIO);
         if (p.startsWith("/fonts/")) return serveFile(res, join(FONTS, p.slice(7)));
         if (p.startsWith("/video/") || p.startsWith("/timing/") || p.startsWith("/truth/")) return serveFile(res, join(REPO, p));
         // the explorer (with Lit from the flake) and the site pages, for `serve`

@@ -5,7 +5,7 @@
 //   capture  ?mode=capture&from=F&to=T&job=..  draws frames F..T-1, POSTs raw RGBA
 
 import { loadFonts } from "./fonts.js";
-import { FPS, loadTiming, timeline } from "./timing.js";
+import { EPISODE, FPS, loadTiming, timeline } from "./timing.js";
 import { Renderer } from "./render.js";
 
 const params = new URLSearchParams(location.search);
@@ -45,7 +45,7 @@ if (mode === "capture") {
 function live() {
   const T = timeline();
   document.body.classList.add("live", "idle");
-  const audio = new Audio(params.get("audio") ?? "soundtrack.m4a");
+  const audio = new Audio(params.get("audio") ?? (EPISODE === "renders" ? "soundtrack.m4a" : `soundtrack-${EPISODE}.m4a`));
   audio.preload = "auto";
   const play = document.getElementById("play");
   const seek = document.getElementById("seek");
