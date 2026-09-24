@@ -1,0 +1,2304 @@
+{
+ "litHtmlVersion": [
+  "3.3.3"
+ ],
+ "marker": "lit$480592716$",
+ "markerMatch": "?lit$480592716$",
+ "boundAttributeSuffix": "$lit$",
+ "counter": {
+  "source": "(count) => html`\n  <span class=\"${count % 2 ? 'odd' : ''}\">${count}</span>\n  <button @click=${() => render(counter(count + 1), document.body)}>\n    Increment\n  </button>`",
+  "result0": {
+   "litType": 1,
+   "strings": [
+    "\n  <span class=\"",
+    "\">",
+    "</span>\n  <button @click=",
+    ">\n    Increment\n  </button>"
+   ],
+   "raw": [
+    "\n  <span class=\"",
+    "\">",
+    "</span>\n  <button @click=",
+    ">\n    Increment\n  </button>"
+   ],
+   "values": [
+    "",
+    0,
+    {
+     "fn": "() => render(counter(count + 1), document.body)"
+    }
+   ]
+  },
+  "result1": {
+   "litType": 1,
+   "strings": [
+    "\n  <span class=\"",
+    "\">",
+    "</span>\n  <button @click=",
+    ">\n    Increment\n  </button>"
+   ],
+   "values": [
+    "odd",
+    1,
+    {
+     "fn": "() => render(counter(count + 1), document.body)"
+    }
+   ]
+  },
+  "sameStrings": true,
+  "stringsFrozen": true,
+  "prepare": {
+   "html": "\n  <span class$lit$=\"lit$480592716$\"><?lit$480592716$></span>\n  <button @click$lit$=lit$480592716$>\n    Increment\n  </button>",
+   "attrNames": [
+    "class",
+    "@click"
+   ],
+   "parsed": {
+    "type": "fragment",
+    "children": [
+     {
+      "type": "text",
+      "data": "\n  "
+     },
+     {
+      "type": "element",
+      "name": "span",
+      "attrs": [
+       [
+        "class$lit$",
+        "lit$480592716$"
+       ]
+      ],
+      "children": [
+       {
+        "type": "comment",
+        "data": "?lit$480592716$"
+       }
+      ]
+     },
+     {
+      "type": "text",
+      "data": "\n  "
+     },
+     {
+      "type": "element",
+      "name": "button",
+      "attrs": [
+       [
+        "@click$lit$",
+        "lit$480592716$"
+       ]
+      ],
+      "children": [
+       {
+        "type": "text",
+        "data": "\n    Increment\n  "
+       }
+      ]
+     }
+    ]
+   },
+   "walk": [
+    {
+     "index": 0,
+     "path": [
+      1
+     ],
+     "type": "span"
+    },
+    {
+     "index": 1,
+     "path": [
+      1,
+      0
+     ],
+     "type": "#comment"
+    },
+    {
+     "index": 2,
+     "path": [
+      3
+     ],
+     "type": "button"
+    }
+   ]
+  },
+  "render0": {
+   "events": [
+    {
+     "kind": "begin render",
+     "id": 0
+    },
+    {
+     "kind": "template prep",
+     "strings": [
+      "\n  <span class=\"",
+      "\">",
+      "</span>\n  <button @click=",
+      ">\n    Increment\n  </button>"
+     ],
+     "templateHtml": "\n  <span><!--?lit$480592716$--></span>\n  <button>\n    Increment\n  </button>",
+     "parts": [
+      {
+       "type": 1,
+       "index": 0,
+       "name": "class",
+       "strings": [
+        "",
+        ""
+       ],
+       "ctor": "AttributePart"
+      },
+      {
+       "type": 2,
+       "index": 1
+      },
+      {
+       "type": 1,
+       "index": 2,
+       "name": "click",
+       "strings": [
+        "",
+        ""
+       ],
+       "ctor": "EventPart"
+      }
+     ]
+    },
+    {
+     "kind": "template instantiated",
+     "parts": [
+      "AttributePart",
+      "ChildPart",
+      "EventPart"
+     ],
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "text",
+        "data": "\n  "
+       },
+       {
+        "type": "element",
+        "name": "span",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         }
+        ]
+       },
+       {
+        "type": "text",
+        "data": "\n  "
+       },
+       {
+        "type": "element",
+        "name": "button",
+        "attrs": [],
+        "children": [
+         {
+          "type": "text",
+          "data": "\n    Increment\n  "
+         }
+        ]
+       }
+      ]
+     },
+     "values": [
+      "",
+      0,
+      {
+       "fn": "() => render(counter(count + 1), document.body)"
+      }
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "AttributePart",
+     "valueIndex": 0,
+     "value": ""
+    },
+    {
+     "kind": "commit attribute",
+     "element": "span",
+     "name": "class",
+     "value": ""
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 1,
+     "value": 0
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "text",
+      "data": ""
+     }
+    },
+    {
+     "kind": "commit text",
+     "value": 0
+    },
+    {
+     "kind": "set part",
+     "part": "EventPart",
+     "valueIndex": 2,
+     "value": {
+      "fn": "() => render(counter(count + 1), document.body)"
+     }
+    },
+    {
+     "kind": "commit event listener",
+     "element": "button",
+     "name": "click",
+     "value": {
+      "fn": "() => render(counter(count + 1), document.body)"
+     },
+     "addListener": true,
+     "removeListener": false
+    },
+    {
+     "kind": "template instantiated and updated",
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "text",
+        "data": "\n  "
+       },
+       {
+        "type": "element",
+        "name": "span",
+        "attrs": [
+         [
+          "class",
+          ""
+         ]
+        ],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "0"
+         }
+        ]
+       },
+       {
+        "type": "text",
+        "data": "\n  "
+       },
+       {
+        "type": "element",
+        "name": "button",
+        "attrs": [],
+        "children": [
+         {
+          "type": "text",
+          "data": "\n    Increment\n  "
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "text",
+        "data": "\n  "
+       },
+       {
+        "type": "element",
+        "name": "span",
+        "attrs": [
+         [
+          "class",
+          ""
+         ]
+        ],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "0"
+         }
+        ]
+       },
+       {
+        "type": "text",
+        "data": "\n  "
+       },
+       {
+        "type": "element",
+        "name": "button",
+        "attrs": [],
+        "children": [
+         {
+          "type": "text",
+          "data": "\n    Increment\n  "
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "end render",
+     "id": 0
+    }
+   ],
+   "body": {
+    "type": "element",
+    "name": "body",
+    "attrs": [],
+    "children": [
+     {
+      "type": "comment",
+      "data": ""
+     },
+     {
+      "type": "text",
+      "data": "\n  "
+     },
+     {
+      "type": "element",
+      "name": "span",
+      "attrs": [
+       [
+        "class",
+        ""
+       ]
+      ],
+      "children": [
+       {
+        "type": "comment",
+        "data": "?lit$480592716$"
+       },
+       {
+        "type": "text",
+        "data": "0"
+       }
+      ]
+     },
+     {
+      "type": "text",
+      "data": "\n  "
+     },
+     {
+      "type": "element",
+      "name": "button",
+      "attrs": [],
+      "children": [
+       {
+        "type": "text",
+        "data": "\n    Increment\n  "
+       }
+      ]
+     }
+    ]
+   },
+   "bodyHtml": "<!---->\n  <span class=\"\"><!--?lit$480592716$-->0</span>\n  <button>\n    Increment\n  </button>"
+  },
+  "rootPart": {
+   "ctor": "ChildPart",
+   "startNode": [
+    0
+   ],
+   "endNode": null,
+   "committed": "TemplateInstance",
+   "instanceParts": [
+    {
+     "ctor": "AttributePart",
+     "name": "class",
+     "element": [
+      2
+     ]
+    },
+    {
+     "ctor": "ChildPart",
+     "startNode": [
+      2,
+      0
+     ],
+     "endNode": null
+    },
+    {
+     "ctor": "EventPart",
+     "name": "click",
+     "element": [
+      4
+     ]
+    }
+   ]
+  },
+  "render1": {
+   "events": [
+    {
+     "kind": "begin render",
+     "id": 1
+    },
+    {
+     "kind": "template updating",
+     "values": [
+      "odd",
+      1,
+      {
+       "fn": "() => render(counter(count + 1), document.body)"
+      }
+     ],
+     "parts": [
+      "AttributePart",
+      "ChildPart",
+      "EventPart"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "AttributePart",
+     "valueIndex": 0,
+     "value": "odd"
+    },
+    {
+     "kind": "commit attribute",
+     "element": "span",
+     "name": "class",
+     "value": "odd"
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 1,
+     "value": 1
+    },
+    {
+     "kind": "commit text",
+     "value": 1
+    },
+    {
+     "kind": "set part",
+     "part": "EventPart",
+     "valueIndex": 2,
+     "value": {
+      "fn": "() => render(counter(count + 1), document.body)"
+     }
+    },
+    {
+     "kind": "commit event listener",
+     "element": "button",
+     "name": "click",
+     "value": {
+      "fn": "() => render(counter(count + 1), document.body)"
+     },
+     "addListener": false,
+     "removeListener": false
+    },
+    {
+     "kind": "end render",
+     "id": 1
+    }
+   ],
+   "body": {
+    "type": "element",
+    "name": "body",
+    "attrs": [],
+    "children": [
+     {
+      "type": "comment",
+      "data": ""
+     },
+     {
+      "type": "text",
+      "data": "\n  "
+     },
+     {
+      "type": "element",
+      "name": "span",
+      "attrs": [
+       [
+        "class",
+        "odd"
+       ]
+      ],
+      "children": [
+       {
+        "type": "comment",
+        "data": "?lit$480592716$"
+       },
+       {
+        "type": "text",
+        "data": "1"
+       }
+      ]
+     },
+     {
+      "type": "text",
+      "data": "\n  "
+     },
+     {
+      "type": "element",
+      "name": "button",
+      "attrs": [],
+      "children": [
+       {
+        "type": "text",
+        "data": "\n    Increment\n  "
+       }
+      ]
+     }
+    ]
+   },
+   "bodyHtml": "<!---->\n  <span class=\"odd\"><!--?lit$480592716$-->1</span>\n  <button>\n    Increment\n  </button>"
+  },
+  "sameInstance": true,
+  "render1again": {
+   "events": [
+    {
+     "kind": "begin render",
+     "id": 2
+    },
+    {
+     "kind": "template updating",
+     "values": [
+      "odd",
+      1,
+      {
+       "fn": "() => render(counter(count + 1), document.body)"
+      }
+     ],
+     "parts": [
+      "AttributePart",
+      "ChildPart",
+      "EventPart"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "AttributePart",
+     "valueIndex": 0,
+     "value": "odd"
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 1,
+     "value": 1
+    },
+    {
+     "kind": "set part",
+     "part": "EventPart",
+     "valueIndex": 2,
+     "value": {
+      "fn": "() => render(counter(count + 1), document.body)"
+     }
+    },
+    {
+     "kind": "commit event listener",
+     "element": "button",
+     "name": "click",
+     "value": {
+      "fn": "() => render(counter(count + 1), document.body)"
+     },
+     "addListener": false,
+     "removeListener": false
+    },
+    {
+     "kind": "end render",
+     "id": 2
+    }
+   ],
+   "bodyHtml": "<!---->\n  <span class=\"odd\"><!--?lit$480592716$-->1</span>\n  <button>\n    Increment\n  </button>",
+   "sameInstance": true
+  }
+ },
+ "list": {
+  "source": "(items) => html`\n  <ul>${items.map((item) => html`<li>${item}</li>`)}</ul>`",
+  "render0": {
+   "events": [
+    {
+     "kind": "begin render",
+     "id": 3
+    },
+    {
+     "kind": "template prep",
+     "strings": [
+      "\n  <ul>",
+      "</ul>"
+     ],
+     "templateHtml": "\n  <ul><!--?lit$480592716$--></ul>",
+     "parts": [
+      {
+       "type": 2,
+       "index": 1
+      }
+     ]
+    },
+    {
+     "kind": "template instantiated",
+     "parts": [
+      "ChildPart"
+     ],
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "text",
+        "data": "\n  "
+       },
+       {
+        "type": "element",
+        "name": "ul",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         }
+        ]
+       }
+      ]
+     },
+     "values": [
+      {
+       "array": [
+        {
+         "templateResult": true,
+         "strings": [
+          "<li>",
+          "</li>"
+         ],
+         "values": [
+          "Apples"
+         ]
+        },
+        {
+         "templateResult": true,
+         "strings": [
+          "<li>",
+          "</li>"
+         ],
+         "values": [
+          "Bread"
+         ]
+        },
+        {
+         "templateResult": true,
+         "strings": [
+          "<li>",
+          "</li>"
+         ],
+         "values": [
+          "Cheese"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": {
+      "array": [
+       {
+        "templateResult": true,
+        "strings": [
+         "<li>",
+         "</li>"
+        ],
+        "values": [
+         "Apples"
+        ]
+       },
+       {
+        "templateResult": true,
+        "strings": [
+         "<li>",
+         "</li>"
+        ],
+        "values": [
+         "Bread"
+        ]
+       },
+       {
+        "templateResult": true,
+        "strings": [
+         "<li>",
+         "</li>"
+        ],
+        "values": [
+         "Cheese"
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "template prep",
+     "strings": [
+      "<li>",
+      "</li>"
+     ],
+     "templateHtml": "<li><!--?lit$480592716$--></li>",
+     "parts": [
+      {
+       "type": 2,
+       "index": 1
+      }
+     ]
+    },
+    {
+     "kind": "template instantiated",
+     "parts": [
+      "ChildPart"
+     ],
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         }
+        ]
+       }
+      ]
+     },
+     "values": [
+      "Apples"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": "Apples"
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "text",
+      "data": ""
+     }
+    },
+    {
+     "kind": "commit text",
+     "value": "Apples"
+    },
+    {
+     "kind": "template instantiated and updated",
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "Apples"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "Apples"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "template instantiated",
+     "parts": [
+      "ChildPart"
+     ],
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         }
+        ]
+       }
+      ]
+     },
+     "values": [
+      "Bread"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": "Bread"
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "text",
+      "data": ""
+     }
+    },
+    {
+     "kind": "commit text",
+     "value": "Bread"
+    },
+    {
+     "kind": "template instantiated and updated",
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "Bread"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "Bread"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "template instantiated",
+     "parts": [
+      "ChildPart"
+     ],
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         }
+        ]
+       }
+      ]
+     },
+     "values": [
+      "Cheese"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": "Cheese"
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "text",
+      "data": ""
+     }
+    },
+    {
+     "kind": "commit text",
+     "value": "Cheese"
+    },
+    {
+     "kind": "template instantiated and updated",
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "Cheese"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "Cheese"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "template instantiated and updated",
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "text",
+        "data": "\n  "
+       },
+       {
+        "type": "element",
+        "name": "ul",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "comment",
+          "data": ""
+         },
+         {
+          "type": "element",
+          "name": "li",
+          "attrs": [],
+          "children": [
+           {
+            "type": "comment",
+            "data": "?lit$480592716$"
+           },
+           {
+            "type": "text",
+            "data": "Apples"
+           }
+          ]
+         },
+         {
+          "type": "comment",
+          "data": ""
+         },
+         {
+          "type": "comment",
+          "data": ""
+         },
+         {
+          "type": "element",
+          "name": "li",
+          "attrs": [],
+          "children": [
+           {
+            "type": "comment",
+            "data": "?lit$480592716$"
+           },
+           {
+            "type": "text",
+            "data": "Bread"
+           }
+          ]
+         },
+         {
+          "type": "comment",
+          "data": ""
+         },
+         {
+          "type": "comment",
+          "data": ""
+         },
+         {
+          "type": "element",
+          "name": "li",
+          "attrs": [],
+          "children": [
+           {
+            "type": "comment",
+            "data": "?lit$480592716$"
+           },
+           {
+            "type": "text",
+            "data": "Cheese"
+           }
+          ]
+         },
+         {
+          "type": "comment",
+          "data": ""
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "text",
+        "data": "\n  "
+       },
+       {
+        "type": "element",
+        "name": "ul",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "comment",
+          "data": ""
+         },
+         {
+          "type": "element",
+          "name": "li",
+          "attrs": [],
+          "children": [
+           {
+            "type": "comment",
+            "data": "?lit$480592716$"
+           },
+           {
+            "type": "text",
+            "data": "Apples"
+           }
+          ]
+         },
+         {
+          "type": "comment",
+          "data": ""
+         },
+         {
+          "type": "comment",
+          "data": ""
+         },
+         {
+          "type": "element",
+          "name": "li",
+          "attrs": [],
+          "children": [
+           {
+            "type": "comment",
+            "data": "?lit$480592716$"
+           },
+           {
+            "type": "text",
+            "data": "Bread"
+           }
+          ]
+         },
+         {
+          "type": "comment",
+          "data": ""
+         },
+         {
+          "type": "comment",
+          "data": ""
+         },
+         {
+          "type": "element",
+          "name": "li",
+          "attrs": [],
+          "children": [
+           {
+            "type": "comment",
+            "data": "?lit$480592716$"
+           },
+           {
+            "type": "text",
+            "data": "Cheese"
+           }
+          ]
+         },
+         {
+          "type": "comment",
+          "data": ""
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "end render",
+     "id": 3
+    }
+   ],
+   "body": {
+    "type": "element",
+    "name": "body",
+    "attrs": [],
+    "children": [
+     {
+      "type": "comment",
+      "data": ""
+     },
+     {
+      "type": "text",
+      "data": "\n  "
+     },
+     {
+      "type": "element",
+      "name": "ul",
+      "attrs": [],
+      "children": [
+       {
+        "type": "comment",
+        "data": "?lit$480592716$"
+       },
+       {
+        "type": "comment",
+        "data": ""
+       },
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "Apples"
+         }
+        ]
+       },
+       {
+        "type": "comment",
+        "data": ""
+       },
+       {
+        "type": "comment",
+        "data": ""
+       },
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "Bread"
+         }
+        ]
+       },
+       {
+        "type": "comment",
+        "data": ""
+       },
+       {
+        "type": "comment",
+        "data": ""
+       },
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "Cheese"
+         }
+        ]
+       },
+       {
+        "type": "comment",
+        "data": ""
+       }
+      ]
+     }
+    ]
+   },
+   "bodyHtml": "<!---->\n  <ul><!--?lit$480592716$--><!----><li><!--?lit$480592716$-->Apples</li><!----><!----><li><!--?lit$480592716$-->Bread</li><!----><!----><li><!--?lit$480592716$-->Cheese</li><!----></ul>"
+  },
+  "render1": {
+   "events": [
+    {
+     "kind": "begin render",
+     "id": 4
+    },
+    {
+     "kind": "template updating",
+     "values": [
+      {
+       "array": [
+        {
+         "templateResult": true,
+         "strings": [
+          "<li>",
+          "</li>"
+         ],
+         "values": [
+          "Apples"
+         ]
+        },
+        {
+         "templateResult": true,
+         "strings": [
+          "<li>",
+          "</li>"
+         ],
+         "values": [
+          "Bread"
+         ]
+        },
+        {
+         "templateResult": true,
+         "strings": [
+          "<li>",
+          "</li>"
+         ],
+         "values": [
+          "Cheese"
+         ]
+        },
+        {
+         "templateResult": true,
+         "strings": [
+          "<li>",
+          "</li>"
+         ],
+         "values": [
+          "Dates"
+         ]
+        }
+       ]
+      }
+     ],
+     "parts": [
+      "ChildPart"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": {
+      "array": [
+       {
+        "templateResult": true,
+        "strings": [
+         "<li>",
+         "</li>"
+        ],
+        "values": [
+         "Apples"
+        ]
+       },
+       {
+        "templateResult": true,
+        "strings": [
+         "<li>",
+         "</li>"
+        ],
+        "values": [
+         "Bread"
+        ]
+       },
+       {
+        "templateResult": true,
+        "strings": [
+         "<li>",
+         "</li>"
+        ],
+        "values": [
+         "Cheese"
+        ]
+       },
+       {
+        "templateResult": true,
+        "strings": [
+         "<li>",
+         "</li>"
+        ],
+        "values": [
+         "Dates"
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "template updating",
+     "values": [
+      "Apples"
+     ],
+     "parts": [
+      "ChildPart"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": "Apples"
+    },
+    {
+     "kind": "template updating",
+     "values": [
+      "Bread"
+     ],
+     "parts": [
+      "ChildPart"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": "Bread"
+    },
+    {
+     "kind": "template updating",
+     "values": [
+      "Cheese"
+     ],
+     "parts": [
+      "ChildPart"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": "Cheese"
+    },
+    {
+     "kind": "template instantiated",
+     "parts": [
+      "ChildPart"
+     ],
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         }
+        ]
+       }
+      ]
+     },
+     "values": [
+      "Dates"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": "Dates"
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "text",
+      "data": ""
+     }
+    },
+    {
+     "kind": "commit text",
+     "value": "Dates"
+    },
+    {
+     "kind": "template instantiated and updated",
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "Dates"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "li",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "Dates"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "end render",
+     "id": 4
+    }
+   ],
+   "bodyHtml": "<!---->\n  <ul><!--?lit$480592716$--><!----><li><!--?lit$480592716$-->Apples</li><!----><!----><li><!--?lit$480592716$-->Bread</li><!----><!----><li><!--?lit$480592716$-->Cheese</li><!----><!----><li><!--?lit$480592716$-->Dates</li><!----></ul>"
+  },
+  "render2": {
+   "events": [
+    {
+     "kind": "begin render",
+     "id": 5
+    },
+    {
+     "kind": "template updating",
+     "values": [
+      {
+       "array": [
+        {
+         "templateResult": true,
+         "strings": [
+          "<li>",
+          "</li>"
+         ],
+         "values": [
+          "Bread"
+         ]
+        },
+        {
+         "templateResult": true,
+         "strings": [
+          "<li>",
+          "</li>"
+         ],
+         "values": [
+          "Cheese"
+         ]
+        },
+        {
+         "templateResult": true,
+         "strings": [
+          "<li>",
+          "</li>"
+         ],
+         "values": [
+          "Dates"
+         ]
+        }
+       ]
+      }
+     ],
+     "parts": [
+      "ChildPart"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": {
+      "array": [
+       {
+        "templateResult": true,
+        "strings": [
+         "<li>",
+         "</li>"
+        ],
+        "values": [
+         "Bread"
+        ]
+       },
+       {
+        "templateResult": true,
+        "strings": [
+         "<li>",
+         "</li>"
+        ],
+        "values": [
+         "Cheese"
+        ]
+       },
+       {
+        "templateResult": true,
+        "strings": [
+         "<li>",
+         "</li>"
+        ],
+        "values": [
+         "Dates"
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "template updating",
+     "values": [
+      "Bread"
+     ],
+     "parts": [
+      "ChildPart"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": "Bread"
+    },
+    {
+     "kind": "commit text",
+     "value": "Bread"
+    },
+    {
+     "kind": "template updating",
+     "values": [
+      "Cheese"
+     ],
+     "parts": [
+      "ChildPart"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": "Cheese"
+    },
+    {
+     "kind": "commit text",
+     "value": "Cheese"
+    },
+    {
+     "kind": "template updating",
+     "values": [
+      "Dates"
+     ],
+     "parts": [
+      "ChildPart"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": "Dates"
+    },
+    {
+     "kind": "commit text",
+     "value": "Dates"
+    },
+    {
+     "kind": "end render",
+     "id": 5
+    }
+   ],
+   "bodyHtml": "<!---->\n  <ul><!--?lit$480592716$--><!----><li><!--?lit$480592716$-->Bread</li><!----><!----><li><!--?lit$480592716$-->Cheese</li><!----><!----><li><!--?lit$480592716$-->Dates</li><!----></ul>"
+  }
+ },
+ "greeting": {
+  "source": "(user) => user\n    ? html`<p>Welcome back, ${user}!</p>`\n    : html`<button>Sign in</button>`\n(user) => html`<header>${greeting(user)}</header>`",
+  "render0": {
+   "events": [
+    {
+     "kind": "begin render",
+     "id": 6
+    },
+    {
+     "kind": "template prep",
+     "strings": [
+      "<header>",
+      "</header>"
+     ],
+     "templateHtml": "<header><!--?lit$480592716$--></header>",
+     "parts": [
+      {
+       "type": 2,
+       "index": 1
+      }
+     ]
+    },
+    {
+     "kind": "template instantiated",
+     "parts": [
+      "ChildPart"
+     ],
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "header",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         }
+        ]
+       }
+      ]
+     },
+     "values": [
+      {
+       "templateResult": true,
+       "strings": [
+        "<button>Sign in</button>"
+       ],
+       "values": []
+      }
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": {
+      "templateResult": true,
+      "strings": [
+       "<button>Sign in</button>"
+      ],
+      "values": []
+     }
+    },
+    {
+     "kind": "template prep",
+     "strings": [
+      "<button>Sign in</button>"
+     ],
+     "templateHtml": "<button>Sign in</button>",
+     "parts": []
+    },
+    {
+     "kind": "template instantiated",
+     "parts": [],
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "button",
+        "attrs": [],
+        "children": [
+         {
+          "type": "text",
+          "data": "Sign in"
+         }
+        ]
+       }
+      ]
+     },
+     "values": []
+    },
+    {
+     "kind": "template instantiated and updated",
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "button",
+        "attrs": [],
+        "children": [
+         {
+          "type": "text",
+          "data": "Sign in"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "button",
+        "attrs": [],
+        "children": [
+         {
+          "type": "text",
+          "data": "Sign in"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "template instantiated and updated",
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "header",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "element",
+          "name": "button",
+          "attrs": [],
+          "children": [
+           {
+            "type": "text",
+            "data": "Sign in"
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "header",
+        "attrs": [],
+        "children": [
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "element",
+          "name": "button",
+          "attrs": [],
+          "children": [
+           {
+            "type": "text",
+            "data": "Sign in"
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "end render",
+     "id": 6
+    }
+   ],
+   "bodyHtml": "<!----><header><!--?lit$480592716$--><button>Sign in</button></header>"
+  },
+  "render1": {
+   "events": [
+    {
+     "kind": "begin render",
+     "id": 7
+    },
+    {
+     "kind": "template updating",
+     "values": [
+      {
+       "templateResult": true,
+       "strings": [
+        "<p>Welcome back, ",
+        "!</p>"
+       ],
+       "values": [
+        "Ada"
+       ]
+      }
+     ],
+     "parts": [
+      "ChildPart"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": {
+      "templateResult": true,
+      "strings": [
+       "<p>Welcome back, ",
+       "!</p>"
+      ],
+      "values": [
+       "Ada"
+      ]
+     }
+    },
+    {
+     "kind": "template prep",
+     "strings": [
+      "<p>Welcome back, ",
+      "!</p>"
+     ],
+     "templateHtml": "<p>Welcome back, <!--?lit$480592716$-->!</p>",
+     "parts": [
+      {
+       "type": 2,
+       "index": 1
+      }
+     ]
+    },
+    {
+     "kind": "template instantiated",
+     "parts": [
+      "ChildPart"
+     ],
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "p",
+        "attrs": [],
+        "children": [
+         {
+          "type": "text",
+          "data": "Welcome back, "
+         },
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "!"
+         }
+        ]
+       }
+      ]
+     },
+     "values": [
+      "Ada"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": "Ada"
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "text",
+      "data": ""
+     }
+    },
+    {
+     "kind": "commit text",
+     "value": "Ada"
+    },
+    {
+     "kind": "template instantiated and updated",
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "p",
+        "attrs": [],
+        "children": [
+         {
+          "type": "text",
+          "data": "Welcome back, "
+         },
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "Ada"
+         },
+         {
+          "type": "text",
+          "data": "!"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "p",
+        "attrs": [],
+        "children": [
+         {
+          "type": "text",
+          "data": "Welcome back, "
+         },
+         {
+          "type": "comment",
+          "data": "?lit$480592716$"
+         },
+         {
+          "type": "text",
+          "data": "Ada"
+         },
+         {
+          "type": "text",
+          "data": "!"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "end render",
+     "id": 7
+    }
+   ],
+   "bodyHtml": "<!----><header><!--?lit$480592716$--><p>Welcome back, <!--?lit$480592716$-->Ada!</p></header>"
+  },
+  "render2": {
+   "events": [
+    {
+     "kind": "begin render",
+     "id": 8
+    },
+    {
+     "kind": "template updating",
+     "values": [
+      {
+       "templateResult": true,
+       "strings": [
+        "<button>Sign in</button>"
+       ],
+       "values": []
+      }
+     ],
+     "parts": [
+      "ChildPart"
+     ]
+    },
+    {
+     "kind": "set part",
+     "part": "ChildPart",
+     "valueIndex": 0,
+     "value": {
+      "templateResult": true,
+      "strings": [
+       "<button>Sign in</button>"
+      ],
+      "values": []
+     }
+    },
+    {
+     "kind": "template instantiated",
+     "parts": [],
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "button",
+        "attrs": [],
+        "children": [
+         {
+          "type": "text",
+          "data": "Sign in"
+         }
+        ]
+       }
+      ]
+     },
+     "values": []
+    },
+    {
+     "kind": "template instantiated and updated",
+     "fragment": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "button",
+        "attrs": [],
+        "children": [
+         {
+          "type": "text",
+          "data": "Sign in"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "commit node",
+     "value": {
+      "type": "fragment",
+      "children": [
+       {
+        "type": "element",
+        "name": "button",
+        "attrs": [],
+        "children": [
+         {
+          "type": "text",
+          "data": "Sign in"
+         }
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "kind": "end render",
+     "id": 8
+    }
+   ],
+   "bodyHtml": "<!----><header><!--?lit$480592716$--><button>Sign in</button></header>"
+  }
+ },
+ "partKinds": {
+  "strings": [
+   "<input id=",
+   " .value=",
+   " ?disabled=",
+   " @input=",
+   " ",
+   ">"
+  ],
+  "prepare": {
+   "html": "<input id$lit$=lit$480592716$ .value$lit$=lit$480592716$ ?disabled$lit$=lit$480592716$ @input$lit$=lit$480592716$ lit$480592716$4>",
+   "attrNames": [
+    "id",
+    ".value",
+    "?disabled",
+    "@input"
+   ],
+   "parsed": {
+    "type": "fragment",
+    "children": [
+     {
+      "type": "element",
+      "name": "input",
+      "attrs": [
+       [
+        "id$lit$",
+        "lit$480592716$"
+       ],
+       [
+        ".value$lit$",
+        "lit$480592716$"
+       ],
+       [
+        "?disabled$lit$",
+        "lit$480592716$"
+       ],
+       [
+        "@input$lit$",
+        "lit$480592716$"
+       ],
+       [
+        "lit$480592716$4",
+        ""
+       ]
+      ],
+      "children": []
+     }
+    ]
+   },
+   "walk": [
+    {
+     "index": 0,
+     "path": [
+      0
+     ],
+     "type": "input"
+    }
+   ]
+  },
+  "events": [
+   {
+    "kind": "template prep",
+    "strings": [
+     "<input id=",
+     " .value=",
+     " ?disabled=",
+     " @input=",
+     " ",
+     ">"
+    ],
+    "templateHtml": "<input>",
+    "parts": [
+     {
+      "type": 1,
+      "index": 0,
+      "name": "id",
+      "strings": [
+       "",
+       ""
+      ],
+      "ctor": "AttributePart"
+     },
+     {
+      "type": 1,
+      "index": 0,
+      "name": "value",
+      "strings": [
+       "",
+       ""
+      ],
+      "ctor": "PropertyPart"
+     },
+     {
+      "type": 1,
+      "index": 0,
+      "name": "disabled",
+      "strings": [
+       "",
+       ""
+      ],
+      "ctor": "BooleanAttributePart"
+     },
+     {
+      "type": 1,
+      "index": 0,
+      "name": "input",
+      "strings": [
+       "",
+       ""
+      ],
+      "ctor": "EventPart"
+     },
+     {
+      "type": 6,
+      "index": 0
+     }
+    ]
+   }
+  ]
+ }
+}
