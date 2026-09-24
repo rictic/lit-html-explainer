@@ -1,0 +1,8 @@
+{
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Schedar",
+  "style": "A warm, clear, unhurried narrator for a programming explainer video. Curious and precise, like an experienced engineer showing a colleague something neat. Even pace, natural pauses at commas and periods.",
+  "takes": {
+    "recap:0": 1
+  }
+}
