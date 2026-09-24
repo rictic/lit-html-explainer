@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Text to speech for the narration, one Gemini TTS call per paragraph.
 //
-//   node pipeline/tts.mjs                 synthesize every paragraph not yet in cache/tts
+//   node pipeline/tts.mjs [--episode platform]   synthesize every paragraph not yet in cache/tts
 //   node pipeline/tts.mjs --only markers  just one scene (or scene:index)
 //   node pipeline/tts.mjs --redo markers:2  throw away a take and make a new one
 //   node pipeline/tts.mjs --sample open:1 --voices Charon,Iapetus --out out/voices
@@ -16,6 +16,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync } from "
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseScript, sha } from "./script.mjs";
+import { episodeArg, episodePaths } from "./episode.mjs";
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const VOICE = JSON.parse(readFileSync(join(REPO, "pipeline/voice.json"), "utf8"));
@@ -28,7 +29,13 @@ function parseArgs(argv) {
 }
 
 // The cache key of a paragraph's take with the given voice settings.
-export function takeKey(p, v = VOICE, take = VOICE.takes?.[`${p.scene}:${p.index}`] ?? 0) {
+// Retakes are counted per paragraph in voice.json's "takes", keyed
+// "scene:index" for episode 1 and "episode/scene:index" for the others
+// (scene names repeat across episodes).
+const EP = episodeArg();
+const takeName = (scene, index) => (EP === "renders" ? `${scene}:${index}` : `${EP}/${scene}:${index}`);
+
+export function takeKey(p, v = VOICE, take = VOICE.takes?.[takeName(p.scene, p.index)] ?? 0) {
   return sha(v.model, v.voice, v.style, p.text, take);
 }
 
@@ -79,7 +86,8 @@ async function pool(items, n, fn) {
 async function main() {
   if (!KEY) throw new Error("GEMINI_API_KEY unset: source /keys/gemini_api_keys.env");
   const opt = parseArgs(process.argv.slice(2));
-  const scenes = parseScript(join(REPO, "script/narration.md"));
+  const P = episodePaths(REPO, episodeArg());
+  const scenes = parseScript(P.script);
   const paragraphs = scenes.flatMap((s) => s.paragraphs);
   const pick = (sel) => paragraphs.filter((p) => {
     const [scene, index] = sel.split(":");
@@ -103,17 +111,18 @@ async function main() {
 
   if (opt.redo) {
     const [scene, index] = opt.redo.split(":");
-    const k = `${scene}:${index}`;
+    const k = takeName(scene, index);
     VOICE.takes = { ...VOICE.takes, [k]: (VOICE.takes?.[k] ?? 0) + 1 };
     writeFileSync(join(REPO, "pipeline/voice.json"), JSON.stringify(VOICE, null, 2) + "\n");
     console.log(`${k}: take ${VOICE.takes[k]}`);
-    opt.only = k;
+    opt.only = `${scene}:${index}`;
   }
 
   const dir = join(REPO, "cache/tts");
   mkdirSync(dir, { recursive: true });
   // The paragraphs and their current takes, for align.py and timeline.py.
-  writeFileSync(join(REPO, "cache/paragraphs.json"), JSON.stringify(
+  mkdirSync(dirname(P.paragraphs), { recursive: true });
+  writeFileSync(P.paragraphs, JSON.stringify(
     scenes.map((s) => ({ scene: s.id, lead: s.lead, paragraphs: s.paragraphs.map((p) => ({ ...p, key: takeKey(p) })) })), null, 1));
   const todo = (opt.only ? pick(opt.only) : paragraphs).filter((p) => !existsSync(join(dir, `${takeKey(p)}.wav`)));
   console.log(`${todo.length} paragraph(s) to synthesize`);

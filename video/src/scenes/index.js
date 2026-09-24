@@ -18,4 +18,6 @@ import * as lists from "./lists.js";
 import * as recap from "./recap.js";
 import * as outro from "./outro.js";
 
+export { drawHud as hud } from "../kit/hud.js";
+
 export const SCENES = { open, code, literal, root, lookup, markers, parse, walk, cache, create, update, rerender, nesting, lists, recap, outro };

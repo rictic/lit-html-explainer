@@ -3,6 +3,7 @@
   "voice": "Schedar",
   "style": "A warm, clear, unhurried narrator for a programming explainer video. Curious and precise, like an experienced engineer showing a colleague something neat. Even pace, natural pauses at commas and periods.",
   "takes": {
-    "recap:0": 1
+    "recap:0": 1,
+    "platform/parser:3": 1
   }
 }

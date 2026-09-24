@@ -21,6 +21,8 @@ import soundfile as sf
 import torch
 import torchaudio
 
+from episode import paths
+
 REPO = Path(__file__).resolve().parent.parent
 
 # How words are said, for the aligner's character model.
@@ -108,7 +110,7 @@ class Aligner:
 
 
 def main():
-    scenes = json.loads((REPO / "cache/paragraphs.json").read_text())
+    scenes = json.loads(paths()["paragraphs"].read_text())
     paragraphs = [p for s in scenes for p in s["paragraphs"]]
     outdir = REPO / "cache/align"
     outdir.mkdir(parents=True, exist_ok=True)

@@ -18,6 +18,8 @@ import numpy as np
 import soundfile as sf
 import subprocess
 
+from episode import paths
+
 REPO = Path(__file__).resolve().parent.parent
 SR = 48000
 
@@ -52,13 +54,22 @@ def speech_mask(voice, win=0.05, hold=0.35):
     return np.repeat(smooth, w)[: len(voice)].tolist() + [0.0] * (len(voice) - n * w)
 
 
+# Per episode: where the title card is (scene, next scene, mark, offset).
+TITLE = {
+    "renders": ("open", "code", "follow", 0.6),
+    "platform": ("intro", "tagged", "tour", 0.0),
+}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--music", default=str(REPO / "out/music/theme.mp3"))
+    ap.add_argument("--episode", default="renders")
     args = ap.parse_args()
-    tl = json.loads((REPO / "timing/timeline.json").read_text())
+    P = paths()
+    tl = json.loads(P["timeline"].read_text())
     scenes = {s["id"]: s for s in tl["scenes"]}
-    voice = load(REPO / "out/narration.wav")
+    voice = load(P["narration"])
     music = load(args.music)
     n = max(len(voice), int(tl["duration"] * SR))
     out = np.zeros((n, 2), dtype=np.float32)
@@ -68,9 +79,10 @@ def main():
     duck = np.pad(duck, (0, n - len(duck)))
 
     # 1) the opening of the track under the title card: from the title's
-    #    appearance (open.follow) to a little into `code`
-    title = scenes["open"]["marks"]["follow"] + 0.6
-    fade_end = scenes["code"]["start"] + 1.2
+    #    appearance to a little into the next scene
+    first, second, mark, dt = TITLE[P["ep"]]
+    title = scenes[first]["marks"][mark] + dt
+    fade_end = scenes[second]["start"] + 1.2
     seg = music[: int((fade_end - title) * SR)]
     env = envelope(len(seg), [(0, -30), (1.5, -12), (fade_end - title - 2.2, -9), (fade_end - title, -60)])
     a = int(title * SR)
@@ -84,7 +96,7 @@ def main():
     seg = music[end - int(tail * SR):end]
     b = n - len(seg)
     # quiet under the last words, then up for the final chord once they end
-    voice_end = scenes["outro"]["paragraphs"][-1]["end"] - b / SR
+    voice_end = tl["scenes"][-1]["paragraphs"][-1]["end"] - b / SR
     env = envelope(len(seg), [(0, -60), (2.0, -18), (voice_end + 0.1, -18), (voice_end + 0.8, -8),
                               (tail - 2.6, -8), (tail - 0.5, -24), (tail, -60)])
     out[b:] += seg * env[:, None] * (1 - 0.75 * duck[b:])[:, None]
@@ -92,8 +104,8 @@ def main():
     peak = np.abs(out).max()
     if peak > 0.98:
         out *= 0.98 / peak
-    sf.write(REPO / "out/soundtrack.wav", out, SR, subtype="PCM_16")
-    print(f"out/soundtrack.wav  {n / SR:.2f}s  peak {20 * np.log10(peak):.1f} dBFS")
+    sf.write(P["soundtrack"], out, SR, subtype="PCM_16")
+    print(f"{P['soundtrack']}  {n / SR:.2f}s  peak {20 * np.log10(peak):.1f} dBFS")
 
 
 if __name__ == "__main__":

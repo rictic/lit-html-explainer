@@ -4,11 +4,14 @@
 // Scenes draw in a fixed 1920x1080 logical space. Each scene module
 // (scenes/<id>.js) exports draw(F, S); see docs/STYLE.md for the contract.
 
-import { SCENES } from "./scenes/index.js";
 import { drawPlaceholder } from "./scenes/placeholder.js";
-import { scene, timeline } from "./timing.js";
-import { drawHud } from "./kit/hud.js";
+import { EPISODE, scene, timeline } from "./timing.js";
 import { C } from "./kit/theme.js";
+
+// The episode's scenes (and its HUD, if it has one): scenes/index.js for
+// episode 1, <episode>/index.js for the others.
+const EP = await import(EPISODE === "renders" ? "./scenes/index.js" : `./${EPISODE}/index.js`);
+const SCENES = EP.SCENES;
 import { clamp } from "./util.js";
 
 export const W = 1920, H = 1080;
@@ -92,7 +95,7 @@ export class Renderer {
       this.drawScene(ctx, (b && u >= 1 ? b : a).id, t);
     }
     ctx.setTransform(this.s, 0, 0, this.s, 0, 0);
-    drawHud({ t, ctx, W, H, s: this.s });
+    EP.hud?.({ t, ctx, W, H, s: this.s });
     this.vignette(ctx);
   }
 

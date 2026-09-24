@@ -9,6 +9,7 @@
 //   render.mjs serve [--port 8123]          live preview at http://127.0.0.1:<port>/
 //
 // --scene <id> limits sheet/video to one scene's span (see timing/timeline.json).
+// --episode <name> picks the episode (default renders; e.g. platform).
 //
 // The page (video/index.html) draws each frame on a canvas and POSTs the raw
 // pixels back here; each worker renders a contiguous chunk of frames into its
@@ -23,19 +24,23 @@ import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { episodeArg, episodePaths } from "../pipeline/episode.mjs";
 
 const REPO = resolve(process.env.LIT_REPO ?? resolve(dirname(fileURLToPath(import.meta.url)), ".."));
 const W = 1920, H = 1080;
 const FONTS = process.env.LIT_FONTS;
-// The soundtrack: a pinned copy (flake input), or the one pipeline/mix.py
-// wrote, or failing that the bare narration from pipeline/timeline.py.
-const AUDIO = process.env.LIT_AUDIO ??
-  [join(REPO, "out/soundtrack.wav"), join(REPO, "out/narration.wav")].find((p) => existsSync(p));
+// Which episode: --episode platform (default: episode 1, "renders").
+const EPISODE = episodeArg();
+const EPP = episodePaths(REPO, EPISODE);
+// The soundtrack: a pinned copy (flake input, episode 1), or the one
+// pipeline/mix.py wrote, or failing that the bare narration from timeline.py.
+const AUDIO = (EPISODE === "renders" ? process.env.LIT_AUDIO : undefined) ??
+  [EPP.soundtrack, EPP.narration].find((p) => existsSync(p));
 if (!FONTS) {
   console.error("LIT_FONTS unset: run inside `nix develop`");
   process.exit(1);
 }
-const TIMELINE = JSON.parse(readFileSync(join(REPO, "timing/timeline.json"), "utf8"));
+const TIMELINE = JSON.parse(readFileSync(EPP.timeline, "utf8"));
 const DURATION = TIMELINE.duration;
 
 // --scene id -> that scene's span; otherwise --from/--to (seconds).
@@ -142,7 +147,7 @@ function launchChromium(url) {
 }
 
 function pageUrl(port, params) {
-  return `http://127.0.0.1:${port}/?${new URLSearchParams(params)}`;
+  return `http://127.0.0.1:${port}/?${new URLSearchParams({ ...params, ep: EPISODE })}`;
 }
 
 // ------------------------------------------------------------------ stills
@@ -220,7 +225,7 @@ function sourceHash() {
     }
   };
   walk(join(REPO, "video"));
-  for (const f of ["timing/timeline.json", "truth/truth.json"]) h.update(f).update(readFileSync(join(REPO, f)));
+  for (const f of [EPP.timeline, join(REPO, "truth/truth.json")]) h.update(f.slice(REPO.length)).update(readFileSync(f));
   return h.digest("hex").slice(0, 12);
 }
 
@@ -235,8 +240,8 @@ async function video(opt) {
   const [t0s, t1s] = span(opt);
   const from = Math.round(t0s * fps);
   const to = Math.min(Math.ceil(DURATION * fps), Math.round(t1s * fps));
-  const out = resolve(opt.out ?? join(REPO, opt.scene ? `out/scene-${opt.scene}.mp4` : "out/lit-html-renders.mp4"));
-  const dir = join(REPO, "out/chunks", `${sourceHash()}-${fps}fps-${scale}x`);
+  const out = resolve(opt.out ?? join(REPO, opt.scene ? `out/scene-${opt.scene}.mp4` : EPISODE === "renders" ? "out/lit-html-renders.mp4" : `out/${EPISODE}/${EPISODE}.mp4`));
+  const dir = join(REPO, "out/chunks", `${EPISODE}-${sourceHash()}-${fps}fps-${scale}x`);
   mkdirSync(dir, { recursive: true });
   mkdirSync(dirname(out), { recursive: true });
 

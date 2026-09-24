@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 // Captures truth/truth.json: runs truth/page.js (the video's example
 // templates) against the real lit-html in headless Chromium and saves what
-// lit-html did. Run inside `nix develop` (needs $LIT_HTML and chromium).
+// lit-html did. Run inside `nix develop` (needs $LIT_HTML, $LIT_VENDOR and
+// chromium).
 //
-//   node tools/truth.mjs
+//   node tools/truth.mjs                   truth/page.js     -> truth/truth.json    (episode 1)
+//   node tools/truth.mjs --page platform   truth/platform.js -> truth/platform.json (episode 2)
 
 import { spawn } from "node:child_process";
 import { createReadStream, existsSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -19,10 +21,20 @@ if (!LIT) {
   process.exit(1);
 }
 
+const pageName = process.argv.includes("--page") ? process.argv[process.argv.indexOf("--page") + 1] : "page";
+// Bare specifiers for Lit's development builds; "lit-html" is the same
+// module the pages import directly.
+const IMPORTS = {
+  "lit-html": "/lit-html/development/lit-html.js",
+  "lit-html/": "/lit-html/development/",
+  "@lit/reactive-element": "/vendor/reactive-element/development/reactive-element.js",
+  "@lit/reactive-element/": "/vendor/reactive-element/development/",
+};
 const PAGE = `<!doctype html><meta charset="utf-8"><title>truth</title>
+<script type="importmap">${JSON.stringify({ imports: IMPORTS })}</script>
 <script>addEventListener("error", (e) => fetch("/fail", { method: "POST", body: e.message }));
 addEventListener("unhandledrejection", (e) => fetch("/fail", { method: "POST", body: String(e.reason?.stack ?? e.reason) }));</script>
-<script type="module" src="/truth/page.js"></script>`;
+<script type="module" src="/truth/${pageName}.js"></script>`;
 
 let finish;
 const done = new Promise((ok) => (finish = ok));
@@ -38,7 +50,8 @@ const server = createServer((req, res) => {
     });
     return;
   }
-  const file = p === "/" ? null : p.startsWith("/lit-html/") ? join(LIT, p.slice(10)) : join(REPO, p);
+  const file = p === "/" ? null : p.startsWith("/lit-html/") ? join(LIT, p.slice(10))
+    : p.startsWith("/vendor/") ? join(process.env.LIT_VENDOR ?? "", p.slice(8)) : join(REPO, p);
   if (file === null) return res.writeHead(200, { "content-type": "text/html" }).end(PAGE);
   if (!existsSync(file) || !statSync(file).isFile()) return res.writeHead(404).end();
   res.writeHead(200, { "content-type": extname(file) === ".js" ? "text/javascript" : "application/octet-stream" });
@@ -55,13 +68,14 @@ const timer = setTimeout(() => finish({ ok: false, body: "timed out" }), 60_000)
 
 const { ok, body } = await done;
 clearTimeout(timer);
-browser.kill();
 server.close();
-rmSync(profile, { recursive: true, force: true });
+// Remove the profile once Chromium has exited (it keeps writing until then).
+browser.on("exit", () => rmSync(profile, { recursive: true, force: true }));
+browser.kill();
 if (!ok) {
   console.error(`page failed: ${body}`);
   process.exit(1);
 }
-const out = join(REPO, "truth/truth.json");
+const out = join(REPO, pageName === "page" ? "truth/truth.json" : `truth/${pageName}.json`);
 writeFileSync(out, body + "\n");
 console.log(out);
