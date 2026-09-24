@@ -1,1 +1,34 @@
-<!doctype html><meta charset="utf-8"><title>lit-html explorer</title><p>Coming soon.</p>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>lit-html explorer</title>
+<meta name="description" content="Write a lit-html template and watch the real lit-html (development build) prepare, create and update it: markers, the parsed template, template parts, parts, and every DOM write.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1222'/%3E%3Cpath d='M9 10 L3 16 L9 22 M23 10 L29 16 L23 22' stroke='%237aa2ff' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='3.5' fill='%2338d9c9'/%3E%3C/svg%3E">
+<!-- The UI is built with Lit (production build), vendored under ./vendor.
+     The explored lit-html runs separately, in frame.html. -->
+<script type="importmap">
+{
+  "imports": {
+    "lit": "./vendor/lit/index.js",
+    "lit/": "./vendor/lit/",
+    "lit-html": "./vendor/lit-html/lit-html.js",
+    "lit-html/": "./vendor/lit-html/",
+    "lit-element/": "./vendor/lit-element/",
+    "@lit/reactive-element": "./vendor/reactive-element/reactive-element.js",
+    "@lit/reactive-element/": "./vendor/reactive-element/"
+  }
+}
+</script>
+<style>
+  @font-face { font-family: Inter; src: url(../live/fonts/Inter.ttf), url(../fonts/Inter.ttf); font-weight: 100 900; }
+  @font-face { font-family: "JetBrains Mono"; src: url(../live/fonts/JetBrainsMono.ttf), url(../fonts/JetBrainsMono.ttf); font-weight: 100 900; }
+  :root { color-scheme: dark; }
+  html, body { margin: 0; background: radial-gradient(ellipse at 50% 0%, #111a33, #090e1c 70%) fixed #090e1c; }
+  body { color: #e9edf8; font: 14px/1.45 Inter, system-ui, sans-serif; }
+</style>
+<script type="module" src="./app.js"></script>
+</head>
+<body><lit-explorer></lit-explorer></body>
+</html>
