@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How lit-html renders</title>
+<meta name="description" content="An explainer video: one lit-html template, from the code you write to the DOM. Prepare, create, update, and the caches in between.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c1222'/%3E%3Cpath d='M9 10 L3 16 L9 22 M23 10 L29 16 L23 22' stroke='%237aa2ff' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='3.5' fill='%2338d9c9'/%3E%3C/svg%3E">
+<style>
+  @font-face { font-family: Inter; src: url(live/fonts/Inter.ttf); font-weight: 100 900; }
+  @font-face { font-family: "JetBrains Mono"; src: url(live/fonts/JetBrainsMono.ttf); font-weight: 100 900; }
+  :root { color-scheme: dark; --bg: #090e1c; --panel: #121a30; --border: #2a3558; --text: #e9edf8; --text2: #a6b0cc; --text3: #6c7896; --accent: #7aa2ff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(ellipse at 50% 20%, #111a33, var(--bg) 70%) fixed; color: var(--text);
+         font: 17px/1.55 Inter, system-ui, sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 36px 24px 80px; }
+  h1 { font-size: 40px; line-height: 1.15; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .sub { color: var(--text2); margin: 0 0 22px; }
+  video { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 12px; display: block;
+          box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .cols { display: grid; grid-template-columns: 300px 1fr; gap: 32px; margin-top: 28px; }
+  @media (max-width: 860px) { .cols { grid-template-columns: 1fr; } }
+  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); margin: 0 0 10px; }
+  ol#chapters { list-style: none; margin: 0; padding: 0; position: sticky; top: 16px; }
+  ol#chapters li button { all: unset; cursor: pointer; display: flex; gap: 12px; width: 100%; padding: 6px 10px; border-radius: 8px; color: var(--text2); }
+  ol#chapters li button:hover { background: var(--panel); color: var(--text); }
+  ol#chapters li.now button { background: #1a2442; color: var(--text); }
+  ol#chapters .t, #transcript .t { font: 13px/1.9 "JetBrains Mono", ui-monospace, monospace; color: var(--text3); min-width: 3.6em; }
+  #transcript p { margin: 0 0 12px; display: flex; gap: 14px; color: var(--text2); cursor: pointer; border-radius: 8px; padding: 4px 8px; }
+  #transcript p:hover { background: rgba(255,255,255,.03); }
+  #transcript p.now { color: var(--text); background: #141d38; }
+  #transcript h3 { font-size: 16px; margin: 22px 0 8px 8px; color: var(--text); }
+  section.about { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--text2); }
+  section.about p { max-width: 820px; }
+  a { color: var(--accent); }
+  code { font: 0.9em "JetBrains Mono", ui-monospace, monospace; color: #c6d0ea; }
+</style>
+</head>
+<body>
+<main>
+  <h1>How lit-html renders</h1>
+  <p class="sub">One template, from the code you write to the DOM: the tagged template literal, prepare, create, update, and the caches in between. About 11 minutes.</p>
+  <video id="v" controls preload="metadata" poster="poster.jpg" src="lit-html-renders.mp4">
+    <track kind="captions" src="captions.vtt" srclang="en" label="English" default>
+  </video>
+  <div class="cols">
+    <nav><h2>Chapters</h2><ol id="chapters"></ol></nav>
+    <div><h2>Transcript</h2><div id="transcript"></div></div>
+  </div>
+  <section class="about">
+    <h2>About</h2>
+    <p>Based on lit's design doc,
+      <a href="https://github.com/lit/lit/blob/main/dev-docs/design/how-lit-html-works.md">Life of a lit-html render</a>,
+      and the source, <a href="https://github.com/lit/lit/blob/main/packages/lit-html/src/lit-html.ts"><code>lit-html.ts</code></a>.
+      The strings, markers, parts and DOM shown on screen were captured by running the example through the real
+      lit-html 3.3.3 (development build, with its debug log events on).</p>
+    <p>The narration was voiced by Gemini 3.8 Flash TTS (the Schedar voice), one paragraph per call, and word-aligned
+      with a forced aligner, so the animation can land on the words. Each frame is drawn on a canvas as a pure function
+      of time and rendered in headless Chromium.
+      The <a href="live/">live version</a> is the same renderer running in your browser.
+      Source: <a href="https://code.rictic.com/agent-1/lit-html-explainer">agent-1/lit-html-explainer</a>.</p>
+  </section>
+</main>
+<script type="module">
+  const CHAPTERS = {
+    open: "Comments you didn't write", code: "The example", literal: "A template is data",
+    root: "render() and the root part", lookup: "The template cache", markers: "Prepare: markers",
+    parse: "Prepare: parsing", walk: "Prepare: the walk", cache: "Prepare: cached", create: "Create",
+    update: "Update", rerender: "The second render", nesting: "Nested templates", lists: "Lists",
+    recap: "Recap: the caches", outro: "Further reading",
+  };
+  const CAPTION = [["lit HTML dot T S", "lit-html.ts"], ["lit HTML", "lit-html"], ["inner HTML", "innerHTML"],
+    ["import node", "importNode"], ["set attribute", "setAttribute"], ["dollar, lit, dollar,", "$lit$"],
+    ["at-click", "@click"], ["template result", "TemplateResult"], ["template instance", "TemplateInstance"]];
+  const written = (s) => CAPTION.reduce((a, [x, y]) => a.split(x).join(y), s);
+  const fmt = (t) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
+  const v = document.getElementById("v");
+  const tl = await (await fetch("timeline.json")).json();
+  const seek = (t) => { v.currentTime = t; v.play(); };
+  const chapters = document.getElementById("chapters");
+  const transcript = document.getElementById("transcript");
+  const items = [], paras = [];
+  for (const s of tl.scenes) {
+    const li = document.createElement("li");
+    const b = document.createElement("button");
+    b.innerHTML = `<span class="t">${fmt(s.start)}</span><span></span>`;
+    b.lastChild.textContent = CHAPTERS[s.id] ?? s.id;
+    b.onclick = () => seek(s.start);
+    li.append(b);
+    chapters.append(li);
+    items.push([s, li]);
+    const h = document.createElement("h3");
+    h.textContent = CHAPTERS[s.id] ?? s.id;
+    transcript.append(h);
+    for (const p of s.paragraphs) {
+      const el = document.createElement("p");
+      el.innerHTML = `<span class="t">${fmt(p.start)}</span><span></span>`;
+      el.lastChild.textContent = written(p.text);
+      el.onclick = () => seek(p.start);
+      transcript.append(el);
+      paras.push([p, el]);
+    }
+  }
+  v.addEventListener("timeupdate", () => {
+    const t = v.currentTime;
+    for (const [s, li] of items) li.classList.toggle("now", t >= s.start && t < s.end);
+    for (const [p, el] of paras) el.classList.toggle("now", t >= p.start - 0.2 && t < p.end + 0.4);
+  });
+</script>
+</body>
+</html>

@@ -11,10 +11,11 @@ places the paragraphs one after another with fixed gaps (plus the script's
                            seconds from the start of the video (committed;
                            the video draws from it)
     out/narration.wav      the voice track
-    out/narration.vtt      captions, one cue per sentence
+    timing/captions.vtt    captions, one cue per sentence (committed; the demo page uses them)
 """
 
 import json
+import os
 import re
 from pathlib import Path
 
@@ -40,6 +41,37 @@ def trim(audio):
     a = max(0, loud[0] * win - int(PAD * SR))
     b = min(len(audio), (loud[-1] + 1) * win + int(PAD * SR))
     return a, b
+
+
+# The script spells names the way they're said; captions show them the way
+# they're written.
+CAPTION_TEXT = [
+    ("lit HTML dot T S", "lit-html.ts"),
+    ("lit HTML", "lit-html"),
+    ("inner HTML", "innerHTML"),
+    ("import node", "importNode"),
+    ("set attribute", "setAttribute"),
+    ("dollar, lit, dollar,", "$lit$"),
+    ("at-click", "@click"),
+    ("template result", "TemplateResult"),
+    ("template instance", "TemplateInstance"),
+]
+
+
+def caption(text):
+    for said, written in CAPTION_TEXT:
+        text = text.replace(said, written)
+    return text
+
+
+def write(path, data):
+    """Writes atomically: the video may be reading these files while they change."""
+    tmp = path.with_name(path.name + ".tmp")
+    if isinstance(data, str):
+        tmp.write_text(data)
+    else:
+        sf.write(tmp, data, SR, subtype="PCM_16", format="WAV")
+    os.replace(tmp, path)
 
 
 def vtt_time(t):
@@ -88,21 +120,21 @@ def main():
     duration = round(t, 3)
 
     (REPO / "timing").mkdir(exist_ok=True)
-    (REPO / "timing/timeline.json").write_text(json.dumps({"duration": duration, "scenes": out_scenes}, indent=1) + "\n")
+    write(REPO / "timing/timeline.json", json.dumps({"duration": duration, "scenes": out_scenes}, indent=1) + "\n")
 
     voice = np.zeros(int(np.ceil(duration * SR)) + 1, dtype=np.float32)
     for start, clip in track:
         i = int(round(start * SR))
         voice[i:i + len(clip)] += clip
     (REPO / "out").mkdir(exist_ok=True)
-    sf.write(REPO / "out/narration.wav", voice, SR, subtype="PCM_16")
+    write(REPO / "out/narration.wav", voice)
 
     vtt = ["WEBVTT", ""]
     for i, (s, e, text) in enumerate(cues):
         # hold each caption until the next begins (or a little past its last word)
         nxt = cues[i + 1][0] if i + 1 < len(cues) else e + 1.0
-        vtt += [f"{vtt_time(s)} --> {vtt_time(min(nxt, e + 1.2))}", text, ""]
-    (REPO / "out/narration.vtt").write_text("\n".join(vtt))
+        vtt += [f"{vtt_time(s)} --> {vtt_time(min(nxt, e + 1.2))}", caption(text), ""]
+    write(REPO / "timing/captions.vtt", "\n".join(vtt) + "\n")
 
     for s in out_scenes:
         print(f"{s['id']:10s} {s['start']:7.2f} - {s['end']:7.2f}  ({s['end'] - s['start']:5.1f}s)")

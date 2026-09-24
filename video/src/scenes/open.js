@@ -33,11 +33,11 @@ export function draw(F, S) {
 
   // layout: browser centred, then shifted left when devtools opens
   const dv = prog(t, S.m("devtools") - 0.2, 0.9);
-  const outro = prog(t, S.m("follow") + 0.3, 1.2);
+  const outro = prog(t, S.m("follow") + 0.2, 1.4);
   const bw = mix({ x: 390, y: 170, w: 1140, h: 720 }, { x: 70, y: 200, w: 820, h: 620 }, dv);
   const enter = prog(t, S.start, 0.8, ease.outCubic);
-  const page = browserWindow(ctx, { ...bw, y: bw.y + 30 * (1 - enter), alpha: enter * (1 - 0.75 * outro), url: "localhost:8000/counter.html" });
-  const app = counterApp(ctx, page, { count, press, alpha: enter * (1 - 0.75 * outro), scale: lerp(1, 0.85, dv) });
+  const page = browserWindow(ctx, { ...bw, y: bw.y + 30 * (1 - enter), alpha: enter * (1 - outro), url: "localhost:8000/counter.html" });
+  const app = counterApp(ctx, page, { count, press, alpha: enter * (1 - outro), scale: lerp(1, 0.85, dv) });
 
   // "A number, and a button": rings
   const rApp = window(t, S.m("app"), S.m("click") + 0.3, 0.3, 0.4);
@@ -65,7 +65,7 @@ export function draw(F, S) {
     const sel = t >= S.m("marker") ? marker : t >= S.m("empty") ? empty : null;
     const q = prog(t, S.m("question"), 0.5, ease.outBack);
     const dt = devtools(ctx, {
-      x, y, w, h, tree, alpha: 1 - 0.75 * outro, select: sel, selectU: sel ? 1 : 0,
+      x, y, w, h, tree, alpha: 1 - outro, select: sel, selectU: sel ? 1 : 0,
       style: (seg, row) => {
         if (row === empty && seg.role === "comment") return { color: hlE > 0 ? rgba("#ffffff", 1) : undefined };
         if (row === marker && seg.role === "comment") return { color: hlM > 0 ? "#ffffff" : undefined };
@@ -77,8 +77,8 @@ export function draw(F, S) {
       if (u <= 0) continue;
       const r = tree.rowRect(ctx, dt.treeX, dt.treeY, row);
       const breathe = t > S.m("question") ? 0.75 + 0.25 * Math.sin((t - S.m("question")) * 5 + k) : 1;
-      ring(ctx, { ...r, r: 8, color: "#ffd166", u: u * breathe * (1 - 0.75 * outro), pad: 8 });
-      withAlpha(ctx, q * (1 - 0.75 * outro), () => {
+      ring(ctx, { ...r, r: 8, color: "#ffd166", u: u * breathe * (1 - outro), pad: 8 });
+      withAlpha(ctx, q * (1 - outro), () => {
         withGlow(ctx, "rgba(255,209,102,0.8)", 16, () =>
           text(ctx, "?", r.x + r.w + 34, r.y + r.h / 2 + 2, { font: sans(44, 800), color: "#ffd166", baseline: "middle" }));
       });
@@ -90,7 +90,7 @@ export function draw(F, S) {
       const a = tree.adv(ctx);
       const x0 = r.x + a * "<!--?lit$".length;
       ctx.fillStyle = "#ffd166";
-      withAlpha(ctx, (1 - 0.75 * outro), () => ctx.fillRect(x0, r.y + r.h - 4, a * 9 * digitsU, 3));
+      withAlpha(ctx, (1 - outro), () => ctx.fillRect(x0, r.y + r.h - 4, a * 9 * digitsU, 3));
     }
   }
 

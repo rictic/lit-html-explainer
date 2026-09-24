@@ -117,6 +117,11 @@ export function cacheTable(ctx, { x, y, w = 560, entries = [], alpha = 1, glow =
   const n = Math.max(minRows, entries.length);
   const h = head + 16 + n * rh + 10;
   const out = { x, y, w, h, rows: [] };
+  // row geometry first, so callers get it even when the table is invisible
+  for (let i = 0; i < n; i++) {
+    const ry = y + head + 34 + i * rh;
+    out.rows.push({ x: x + 12, y: ry, w: w - 24, h: rh - 10, keyPort: { x: x + 40, y: ry + (rh - 10) / 2 }, valuePort: { x: x + w * 0.62 + 20, y: ry + (rh - 10) / 2 } });
+  }
   withAlpha(ctx, alpha, () => {
     ctx.save();
     ctx.shadowColor = "rgba(0,0,0,0.45)";
@@ -138,9 +143,7 @@ export function cacheTable(ctx, { x, y, w = 560, entries = [], alpha = 1, glow =
     text(ctx, "Template", x + w * 0.62, y + head + 20, { font: sans(16, 600), color: C.text3, baseline: "middle" });
     strokeRR(ctx, x + 0.5, y + 0.5, w - 1, h - 1, 14, rgba(OBJ.cache, 0.5), 1.5);
     for (let i = 0; i < n; i++) {
-      const ry = y + head + 34 + i * rh;
-      const row = { x: x + 12, y: ry, w: w - 24, h: rh - 10, keyPort: { x: x + 40, y: ry + (rh - 10) / 2 }, valuePort: { x: x + w * 0.62 + 20, y: ry + (rh - 10) / 2 } };
-      out.rows.push(row);
+      const row = out.rows[i], ry = row.y;
       const e = entries[i];
       if (!e) {
         text(ctx, "(empty)", x + w / 2, ry + (rh - 10) / 2, { font: sans(20, 450, "italic"), color: C.text4, align: "center", baseline: "middle" });

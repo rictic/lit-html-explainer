@@ -1,0 +1,443 @@
+WEBVTT
+
+00:00:00.601 --> 00:00:04.051
+Here's a small app built with lit-html.
+
+00:00:04.051 --> 00:00:07.380
+A number, and a button that adds one to it.
+
+00:00:07.380 --> 00:00:13.729
+Open the browser's developer tools, and you'll find a few things in the DOM that you didn't write.
+
+00:00:13.729 --> 00:00:15.391
+An empty comment.
+
+00:00:15.391 --> 00:00:22.711
+And a comment with a strange name: lit, and a long random number, between dollar signs.
+
+00:00:22.711 --> 00:00:24.374
+Where do they come from?
+
+00:00:24.374 --> 00:00:33.189
+Let's follow one template all the way through lit-html, from the code you write, to the moment the number on the screen changes.
+
+00:00:35.671 --> 00:00:37.113
+Here's the code.
+
+00:00:37.113 --> 00:00:47.731
+The counter function takes a number, and returns a template with three expressions in it: the span's class, the number itself, and a click handler.
+
+00:00:47.731 --> 00:00:50.219
+We render it once with zero.
+
+00:00:50.219 --> 00:00:54.311
+And each click renders it again, with the next number.
+
+00:00:54.311 --> 00:01:02.703
+Inside lit-html, rendering has three phases: prepare, create, and update.
+
+00:01:02.703 --> 00:01:08.670
+Much of what makes lit-html fast is how often it gets to skip the first two.
+
+00:01:08.700 --> 00:01:10.802
+Let's start with the template itself.
+
+00:01:10.802 --> 00:01:16.648
+The word html, right before the backtick, makes this a tagged template literal.
+
+00:01:16.648 --> 00:01:25.577
+When it runs, JavaScript splits it into two lists: the fixed strings of HTML, and the values of the expressions in between.
+
+00:01:25.577 --> 00:01:28.800
+Then it calls the html function, with both.
+
+00:01:28.800 --> 00:01:32.144
+And html does almost nothing with them.
+
+00:01:32.144 --> 00:01:39.593
+It returns a plain object, holding the strings, the values, and a number that says this is HTML.
+
+00:01:39.593 --> 00:01:42.416
+That object is called a TemplateResult.
+
+00:01:42.416 --> 00:01:45.801
+Nothing has been parsed, and the DOM hasn't been touched.
+
+00:01:45.801 --> 00:01:49.348
+Now, call counter again, with one.
+
+00:01:49.348 --> 00:01:50.771
+The values are new.
+
+00:01:50.771 --> 00:01:52.915
+But the strings array isn't.
+
+00:01:52.915 --> 00:01:55.810
+It's the very same object as before.
+
+00:01:55.810 --> 00:02:04.102
+JavaScript makes one strings array for each template literal in your code, and passes that same array every time the literal runs.
+
+00:02:04.102 --> 00:02:07.787
+So the array itself makes a perfect cache key.
+
+00:02:07.787 --> 00:02:10.890
+Same strings array, same template.
+
+00:02:10.890 --> 00:02:12.812
+Now we render.
+
+00:02:12.812 --> 00:02:18.458
+First, render checks the container for a part it left there on an earlier render.
+
+00:02:18.458 --> 00:02:21.721
+This is the first render, so there isn't one.
+
+00:02:21.721 --> 00:02:28.768
+So it makes one: a child part, and it marks where that part begins with an empty comment.
+
+00:02:28.768 --> 00:02:30.950
+That's the first mystery comment.
+
+00:02:30.950 --> 00:02:40.003
+A child part manages a spot in the DOM that can hold content: text, nodes, a list, or a whole template.
+
+00:02:40.003 --> 00:02:45.560
+It's stored on the container, for next time, and then it's given our TemplateResult.
+
+00:02:45.560 --> 00:02:49.044
+The first thing the part does is look up the template.
+
+00:02:49.044 --> 00:02:54.549
+lit-html keeps a cache of prepared templates, keyed by the strings array.
+
+00:02:54.549 --> 00:02:57.932
+This one has never been rendered, so it isn't there.
+
+00:02:57.932 --> 00:03:03.958
+In fact, until this moment, lit-html hasn't looked at this template's HTML at all.
+
+00:03:03.958 --> 00:03:06.610
+Now it has to prepare it.
+
+00:03:06.610 --> 00:03:10.213
+Preparing turns the strings into DOM.
+
+00:03:10.213 --> 00:03:13.716
+lit-html doesn't include an HTML parser.
+
+00:03:13.716 --> 00:03:19.220
+It uses the browser's, which is fast, and handles every corner of HTML.
+
+00:03:19.220 --> 00:03:24.705
+But a parser needs complete HTML, and our strings have holes in them.
+
+00:03:24.705 --> 00:03:31.520
+So first, lit-html fills each hole with a marker, one it can find again after parsing.
+
+00:03:31.520 --> 00:03:35.405
+Which marker to use depends on where the hole is.
+
+00:03:35.405 --> 00:03:40.430
+So lit-html scans the strings, but it doesn't build anything.
+
+00:03:40.430 --> 00:03:47.177
+It tracks just enough to know whether it's in text, inside a tag, or inside an attribute's value.
+
+00:03:47.177 --> 00:03:50.160
+A handful of regular expressions is all that takes.
+
+00:03:50.160 --> 00:03:54.145
+The first hole is in the value of the class attribute.
+
+00:03:54.145 --> 00:04:01.153
+lit-html puts the marker in the value, and adds $lit$ to the attribute's name.
+
+00:04:01.153 --> 00:04:08.270
+That makes the binding easy to find later, and the browser never sees a real class attribute full of marker text.
+
+00:04:08.270 --> 00:04:12.074
+The second hole is in text, inside the span.
+
+00:04:12.074 --> 00:04:16.439
+Here, the marker goes between angle brackets, after a question mark.
+
+00:04:16.439 --> 00:04:24.147
+That's the syntax for a processing instruction, which HTML doesn't support, so the parser turns it into a comment.
+
+00:04:24.147 --> 00:04:26.931
+It's a few bytes shorter than writing out a comment.
+
+00:04:26.931 --> 00:04:29.459
+The third hole is the event binding.
+
+00:04:29.459 --> 00:04:33.250
+That's another attribute value, so it's handled just like the first.
+
+00:04:33.250 --> 00:04:39.340
+The marker itself is the word lit, and a random number, between dollar signs.
+
+00:04:39.340 --> 00:04:47.110
+The number is picked once, when the page loads, so it's very unlikely to appear in your templates by accident.
+
+00:04:47.150 --> 00:04:53.079
+With the markers in, the strings join into one complete piece of HTML.
+
+00:04:53.079 --> 00:04:59.147
+lit-html creates a template element, and sets its innerHTML to that string.
+
+00:04:59.147 --> 00:05:01.411
+The browser parses it into DOM.
+
+00:05:01.411 --> 00:05:04.936
+The contents of a template element are inert.
+
+00:05:04.936 --> 00:05:10.225
+Scripts don't run, images don't load, and custom elements don't upgrade.
+
+00:05:10.225 --> 00:05:13.969
+It's DOM that's only there to be copied.
+
+00:05:14.010 --> 00:05:20.020
+Next, lit-html walks the new DOM once, counting nodes as it goes.
+
+00:05:20.020 --> 00:05:27.080
+It only visits elements and comments, so text nodes, like all of this whitespace, aren't counted.
+
+00:05:27.080 --> 00:05:31.447
+Node zero is the span, and it has a bound attribute.
+
+00:05:31.447 --> 00:05:38.357
+So lit-html records a template part: an attribute part named class, at node zero.
+
+00:05:38.357 --> 00:05:40.651
+Then it removes the attribute.
+
+00:05:40.651 --> 00:05:43.177
+Node one is the marker comment.
+
+00:05:43.177 --> 00:05:46.084
+That's a child part, at node one.
+
+00:05:46.084 --> 00:05:47.467
+The comment stays.
+
+00:05:47.467 --> 00:05:49.040
+It'll be needed later.
+
+00:05:49.040 --> 00:05:51.063
+Node two is the button.
+
+00:05:51.063 --> 00:05:56.930
+Its bound attribute starts with an at sign, so it's an event part, for click.
+
+00:05:56.930 --> 00:06:02.838
+A dot would make it a property part, and a question mark, a boolean attribute part.
+
+00:06:02.838 --> 00:06:05.021
+Recorded, and removed.
+
+00:06:05.021 --> 00:06:10.050
+Three holes, three template parts, so the walk can stop.
+
+00:06:10.050 --> 00:06:19.160
+The template element and its list of parts together make a Template, and it goes into the cache, under the strings array.
+
+00:06:19.160 --> 00:06:20.822
+That's the prepare phase.
+
+00:06:20.822 --> 00:06:28.530
+It runs once for each template literal in your code, no matter how many times, or in how many places, you render it.
+
+00:06:28.581 --> 00:06:29.903
+Back in the root part.
+
+00:06:29.903 --> 00:06:33.090
+Is it already showing an instance of this template?
+
+00:06:33.090 --> 00:06:34.654
+No, it's empty.
+
+00:06:34.654 --> 00:06:37.821
+So it's time for phase two: create.
+
+00:06:37.821 --> 00:06:44.733
+lit-html makes a TemplateInstance, and clones the template's content, with importNode.
+
+00:06:44.733 --> 00:06:45.975
+That's fast.
+
+00:06:45.975 --> 00:06:49.270
+The browser copies the nodes without parsing anything.
+
+00:06:49.270 --> 00:06:56.097
+Then it walks the copy, counting nodes the same way, and stops at each index in the parts list.
+
+00:06:56.097 --> 00:07:02.103
+There, it creates a part: a small object that holds a direct reference to that node.
+
+00:07:02.103 --> 00:07:04.306
+An attribute part for the span.
+
+00:07:04.306 --> 00:07:06.828
+A child part that starts at the comment.
+
+00:07:06.828 --> 00:07:08.891
+And an event part for the button.
+
+00:07:08.891 --> 00:07:14.408
+From now on, lit-html never has to search for these places again.
+
+00:07:14.431 --> 00:07:17.419
+Now, phase three: update.
+
+00:07:17.419 --> 00:07:21.641
+The instance gives each of its parts the matching value.
+
+00:07:21.641 --> 00:07:24.728
+The attribute part gets an empty string.
+
+00:07:24.728 --> 00:07:30.281
+Its last value was nothing, so this is a change, and it sets the class attribute.
+
+00:07:30.281 --> 00:07:32.407
+The child part gets zero.
+
+00:07:32.407 --> 00:07:36.790
+It creates a text node, and inserts it right after its comment.
+
+00:07:36.790 --> 00:07:39.635
+The event part gets the click handler.
+
+00:07:39.635 --> 00:07:45.203
+It adds an event listener, but the listener it adds is itself.
+
+00:07:45.203 --> 00:07:50.251
+When a click comes in, the part calls whichever function it was given most recently.
+
+00:07:50.251 --> 00:07:54.619
+All of this happens while the copy is still detached from the page.
+
+00:07:54.619 --> 00:08:00.431
+Then the root part inserts it, all at once, and remembers which instance it's showing.
+
+00:08:00.431 --> 00:08:03.197
+And there's the second mystery comment.
+
+00:08:03.197 --> 00:08:09.909
+It's the marker from the template, copied into the page, where it marks the start of the child part.
+
+00:08:09.911 --> 00:08:11.734
+Now, click the button.
+
+00:08:11.734 --> 00:08:19.380
+counter runs with one, and makes a new TemplateResult: the same strings array, with new values.
+
+00:08:19.380 --> 00:08:22.305
+render finds the part it left on the body.
+
+00:08:22.305 --> 00:08:27.033
+The template is already in the cache, and the part is already showing an instance of it.
+
+00:08:27.033 --> 00:08:29.958
+So prepare and create are both skipped.
+
+00:08:29.958 --> 00:08:31.310
+Straight to update.
+
+00:08:31.310 --> 00:08:34.373
+The class changed, from empty to odd.
+
+00:08:34.373 --> 00:08:37.036
+That's one call to setAttribute.
+
+00:08:37.036 --> 00:08:42.041
+The number changed too, but lit-html doesn't make a new text node.
+
+00:08:42.041 --> 00:08:45.264
+It changes the text of the one it made last time.
+
+00:08:45.264 --> 00:08:49.628
+And the click handler is a new function, so the part just keeps it.
+
+00:08:49.628 --> 00:08:52.010
+The listener on the button stays the same.
+
+00:08:52.010 --> 00:08:54.675
+That's two small writes to the DOM.
+
+00:08:54.675 --> 00:08:58.201
+Nothing else in the template is touched, or even looked at.
+
+00:08:58.201 --> 00:09:04.369
+And when a string or a number hasn't changed, its part skips the DOM entirely.
+
+00:09:04.371 --> 00:09:07.656
+A child part can hold a whole template, too.
+
+00:09:07.656 --> 00:09:15.680
+It handles one exactly the way the root part did: it looks up the template, creates an instance if it needs one, and updates it.
+
+00:09:15.680 --> 00:09:22.607
+If the part gets a different template than last time, it clears out what's there, and creates a new instance.
+
+00:09:22.607 --> 00:09:29.414
+Switching back skips prepare, since that template is in the cache, but it does create the instance again.
+
+00:09:29.414 --> 00:09:35.640
+If you switch back and forth a lot, the cache directive keeps both instances around.
+
+00:09:35.671 --> 00:09:43.406
+Give a child part an array, and it makes a child part for each item, each one marked by a pair of empty comments.
+
+00:09:43.406 --> 00:09:45.961
+That's where the rest of the empty comments come from.
+
+00:09:45.961 --> 00:09:49.931
+Here, three list items come from one template literal.
+
+00:09:49.931 --> 00:09:53.650
+It's prepared once, and each item gets its own instance.
+
+00:09:53.650 --> 00:10:01.121
+On the next render, items are matched up by position, and each instance is updated in place.
+
+00:10:01.121 --> 00:10:08.590
+To match items by a key instead, so their DOM moves when the list is reordered, use the repeat directive.
+
+00:10:08.671 --> 00:10:10.743
+So that's the whole trip.
+
+00:10:10.743 --> 00:10:12.540
+Let's stack up the caching.
+
+00:10:12.540 --> 00:10:17.544
+JavaScript gives each template literal one strings array.
+
+00:10:17.544 --> 00:10:25.369
+lit-html uses that array as a key, so each template is scanned and parsed only once.
+
+00:10:25.369 --> 00:10:33.535
+Each child part remembers the instance it's showing, so DOM is only cloned when the template in that spot changes.
+
+00:10:33.535 --> 00:10:40.630
+And each part remembers its last value, so an unchanged string or number never touches the DOM.
+
+00:10:40.630 --> 00:10:42.472
+And those comments?
+
+00:10:42.472 --> 00:10:50.521
+The empty ones are markers that lit-html creates as it renders: for the root part, and for list items.
+
+00:10:50.521 --> 00:10:56.347
+The ones with lit and a number are the template's markers, copied into the page.
+
+00:10:56.347 --> 00:10:59.630
+Each one marks where a child part starts.
+
+00:10:59.630 --> 00:11:08.525
+For more detail, read Life of a lit-html render, in the lit repository, and the source, lit-html.ts.
+
+00:11:08.525 --> 00:11:12.230
+It's well commented, and it's all in one file.
+

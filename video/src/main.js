@@ -1,6 +1,6 @@
 // Boot: load fonts, the timeline and the lit-html capture, then run in one of
 // three modes.
-//   live     plays the narration and draws in sync with it (the default)
+//   live     plays the soundtrack and draws in sync with it (the default)
 //   still    ?mode=still&times=12.5,40&job=..  draws each time, POSTs PNGs
 //   capture  ?mode=capture&from=F&to=T&job=..  draws frames F..T-1, POSTs raw RGBA
 
@@ -45,7 +45,7 @@ if (mode === "capture") {
 function live() {
   const T = timeline();
   document.body.classList.add("live", "idle");
-  const audio = new Audio(params.get("audio") ?? "narration.m4a");
+  const audio = new Audio(params.get("audio") ?? "soundtrack.m4a");
   audio.preload = "auto";
   const play = document.getElementById("play");
   const seek = document.getElementById("seek");

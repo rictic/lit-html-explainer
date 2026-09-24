@@ -25,8 +25,10 @@ import { fileURLToPath } from "node:url";
 const REPO = resolve(process.env.LIT_REPO ?? resolve(dirname(fileURLToPath(import.meta.url)), ".."));
 const W = 1920, H = 1080;
 const FONTS = process.env.LIT_FONTS;
-// The voice track: a pinned copy (flake input) or the one pipeline/timeline.py wrote.
-const NARRATION = process.env.LIT_NARRATION ?? join(REPO, "out/narration.wav");
+// The soundtrack: a pinned copy (flake input), or the one pipeline/mix.py
+// wrote, or failing that the bare narration from pipeline/timeline.py.
+const AUDIO = process.env.LIT_AUDIO ??
+  [join(REPO, "out/soundtrack.wav"), join(REPO, "out/narration.wav")].find((p) => existsSync(p));
 if (!FONTS) {
   console.error("LIT_FONTS unset: run inside `nix develop`");
   process.exit(1);
@@ -87,7 +89,7 @@ function startServer(port = 0) {
     try {
       if (req.method === "GET") {
         if (p === "/" ) return serveFile(res, join(REPO, "video/index.html"));
-        if (p === "/narration.wav" || p === "/narration.m4a") return serveFile(res, NARRATION);
+        if (p === "/soundtrack.m4a") return serveFile(res, AUDIO);
         if (p.startsWith("/fonts/")) return serveFile(res, join(FONTS, p.slice(7)));
         if (p.startsWith("/video/") || p.startsWith("/timing/") || p.startsWith("/truth/")) return serveFile(res, join(REPO, p));
         return res.writeHead(404).end();
@@ -263,7 +265,7 @@ async function video(opt) {
   const tStart = from / fps, dur = (to - from) / fps;
   await new Promise((ok, fail) => spawn("ffmpeg", [
     "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", list,
-    "-ss", String(tStart), "-t", String(dur), "-i", NARRATION,
+    "-ss", String(tStart), "-t", String(dur), "-i", AUDIO,
     "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
     "-metadata", "title=How lit-html renders", "-movflags", "+faststart", "-shortest", out,
   ], { stdio: "inherit" }).on("exit", (c) => (c === 0 ? ok() : fail(new Error(`mux exit ${c}`)))));
