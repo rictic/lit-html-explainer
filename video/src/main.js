@@ -3,6 +3,7 @@
 //   live     plays the soundtrack and draws in sync with it (the default)
 //   still    ?mode=still&times=12.5,40&job=..  draws each time, POSTs PNGs
 //   capture  ?mode=capture&from=F&to=T&job=..  draws frames F..T-1, POSTs raw RGBA
+//   check    ?mode=check&from=F&to=T&job=..    draws frames F..T-1, POSTs the errors
 
 import { loadFonts } from "./fonts.js";
 import { EPISODE, FPS, loadTiming, timeline } from "./timing.js";
@@ -29,6 +30,23 @@ if (mode === "capture") {
     const r = await fetch(`frame?job=${job}&i=${i}`, { method: "POST", body: px });
     if (!r.ok) throw new Error(`frame ${i}: ${r.status}`);
   }
+  await fetch(`done?job=${job}`, { method: "POST" });
+} else if (mode === "check") {
+  // Every frame, nothing read back: each distinct exception once, with the
+  // first frame that threw it and how many did.
+  const from = +params.get("from"), to = +params.get("to");
+  const fps = +(params.get("fps") ?? FPS);
+  const seen = new Map();
+  for (let i = from; i < to; i++) {
+    try {
+      renderer.draw((i + 1) / fps);
+    } catch (e) {
+      const error = String(e?.stack ?? e).split("\n").slice(0, 2).map((l) => l.trim()).join(" ");
+      if (!seen.has(error)) seen.set(error, { error, frame: i, count: 0 });
+      seen.get(error).count++;
+    }
+  }
+  await fetch(`report?job=${job}`, { method: "POST", body: JSON.stringify([...seen.values()]) });
   await fetch(`done?job=${job}`, { method: "POST" });
 } else if (mode === "still") {
   for (const ts of params.get("times").split(",")) {

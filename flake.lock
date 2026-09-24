@@ -16,6 +16,42 @@
         "type": "github"
       }
     },
+    "platformPoster": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-HDPSQXJJXPETUhx9lzGCdaxASrnGy1C6DI57IEvZ4jQ=",
+        "type": "file",
+        "url": "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/21325651e2a33902d174d36a7d74d9e1/platform-poster.jpg"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/21325651e2a33902d174d36a7d74d9e1/platform-poster.jpg"
+      }
+    },
+    "platformSoundtrack": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-Kt6pWzz4r+Hqn/HO8NV4Ik6d62YNyHfmj9ea9Jl8Yq8=",
+        "type": "file",
+        "url": "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/f5765f8a0c1c03ced06d5831bf1b1397/platform-soundtrack.flac"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/f5765f8a0c1c03ced06d5831bf1b1397/platform-soundtrack.flac"
+      }
+    },
+    "platformVideo": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-6ZeIH9ldXQbXaREjCYlWQ8QRq/RWitL+Ee1Nk52puu4=",
+        "type": "file",
+        "url": "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/d9b3d11f35ac65544a0533e617900fc4/platform.mp4"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/d9b3d11f35ac65544a0533e617900fc4/platform.mp4"
+      }
+    },
     "poster": {
       "flake": false,
       "locked": {
@@ -31,6 +67,9 @@
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
+        "platformPoster": "platformPoster",
+        "platformSoundtrack": "platformSoundtrack",
+        "platformVideo": "platformVideo",
         "poster": "poster",
         "soundtrack": "soundtrack",
         "video": "video"

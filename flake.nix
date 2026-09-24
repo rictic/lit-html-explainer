@@ -14,6 +14,19 @@
       url = "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/f785f5347917619410dee933436422fe/poster.jpg";
       flake = false;
     };
+    # Episode 2: its poster and soundtrack, and the rendered video.
+    platformPoster = {
+      url = "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/21325651e2a33902d174d36a7d74d9e1/platform-poster.jpg";
+      flake = false;
+    };
+    platformSoundtrack = {
+      url = "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/f5765f8a0c1c03ced06d5831bf1b1397/platform-soundtrack.flac";
+      flake = false;
+    };
+    platformVideo = {
+      url = "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/d9b3d11f35ac65544a0533e617900fc4/platform.mp4";
+      flake = false;
+    };
     # The rendered video (`nix run .#render -- video --fps 60`).
     video = {
       url = "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/4b644ab8b5864d3e060ba7b0546379ed/lit-html-renders.mp4";
@@ -21,7 +34,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, soundtrack, poster, video }:
+  outputs = { self, nixpkgs, soundtrack, poster, video, platformPoster, platformSoundtrack, platformVideo }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
@@ -73,17 +86,29 @@
         { name = "lit-html"; path = litHtml; }
       ];
 
-      # A small AAC copy of the soundtrack for the live page.
-      soundtrackM4a = pkgs.runCommand "soundtrack.m4a" { nativeBuildInputs = [ pkgs.ffmpeg ]; } ''
-        ffmpeg -v error -i ${soundtrack} -c:a aac -b:a 128k -movflags +faststart -f mp4 $out
+      # Small AAC copies of the soundtracks for the live page.
+      m4a = name: src: pkgs.runCommand name { nativeBuildInputs = [ pkgs.ffmpeg ]; } ''
+        ffmpeg -v error -i ${src} -c:a aac -b:a 128k -movflags +faststart -f mp4 $out
+      '';
+      soundtrackM4a = m4a "soundtrack.m4a" soundtrack;
+      platformM4a = m4a "soundtrack-platform.m4a" platformSoundtrack;
+
+      # docs/FINDINGS.md as a page of the site.
+      findings = pkgs.runCommand "findings.html" { nativeBuildInputs = [ pkgs.cmark ]; } ''
+        {
+          cat ${./site/findings-head.html}
+          cmark --unsafe ${./docs/FINDINGS.md}
+          echo '</main></body></html>'
+        } > $out
       '';
 
       # The demo: the rendered video with captions, chapters and transcript,
       # and under live/ the renderer itself, drawing in your browser in sync
       # with the soundtrack (the same code the video was rendered with).
       site = pkgs.runCommand "lit-html-explainer-site" { } ''
-        mkdir -p $out/renders $out/live/video $out/live/timing $out/live/truth $out/live/fonts
+        mkdir -p $out/renders $out/platform $out/live/video $out/live/timing $out/live/truth $out/live/fonts
         cp ${./site/index.html} $out/index.html
+        cp ${findings} $out/findings.html
         # episode 1: How lit-html renders
         cp ${./site/renders/index.html} $out/renders/index.html
         cp ${./timing/captions.vtt} $out/renders/captions.vtt
@@ -92,13 +117,21 @@
         cp ${./site/lit-html.ts} $out/renders/lit-html.ts
         cp ${poster} $out/renders/poster.jpg
         cp ${video} $out/renders/lit-html-renders.mp4
+        # episode 2: What the browser does for Lit
+        cp ${./site/platform/index.html} $out/platform/index.html
+        cp ${./timing/platform/captions.vtt} $out/platform/captions.vtt
+        cp ${./timing/platform/timeline.json} $out/platform/timeline.json
+        cp ${platformPoster} $out/platform/poster.jpg
+        cp ${platformVideo} $out/platform/platform.mp4
         # the renderer itself, live in the browser
         cp ${./video/index.html} $out/live/index.html
         cp -r ${./video/src} $out/live/video/src
         cp -r ${./timing}/. $out/live/timing/
         cp ${./truth/truth.json} $out/live/truth/truth.json
+        cp ${./truth/platform.json} $out/live/truth/platform.json
         cp -L ${fonts}/*.ttf $out/live/fonts/
         cp ${soundtrackM4a} $out/live/soundtrack.m4a
+        cp ${platformM4a} $out/live/soundtrack-platform.m4a
         # the explorer, with Lit vendored beside it
         cp -r ${./explorer} $out/explorer
         chmod -R u+w $out/explorer

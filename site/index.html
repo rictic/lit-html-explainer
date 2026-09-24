@@ -27,7 +27,7 @@
   .card p { margin: 0; color: var(--text2); }
   footer { margin-top: 48px; color: var(--text3); font-size: 15px; }
   footer a { color: var(--accent); }
-  code { font: 0.92em "JetBrains Mono", ui-monospace, monospace; color: #c6d0ea; }
+  code { font: 0.92em "JetBrains Mono", ui-monospace, monospace; color: #c6d0ea; font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
 </style>
 </head>
 <body>
@@ -52,6 +52,11 @@
       <span class="kind">Interactive</span>
       <h2>lit-html explorer</h2>
       <p>Write a template and watch the real lit-html prepare, create and update it: markers, the parsed template, template parts, parts, and every DOM write.</p>
+    </a>
+    <a class="card" href="findings.html">
+      <span class="kind">Notes</span>
+      <h2>Found along the way</h2>
+      <p>Making these turned up two things worth knowing: <code>repeat</code> leaves one <code>&lt;!----&gt;</code> behind per removed item (since lit#4975), and HTML's new processing instructions, which lit-html's marker survives only because of its <code>$</code>.</p>
     </a>
   </div>
   <footer>

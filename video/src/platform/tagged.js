@@ -524,7 +524,7 @@ function drawKeyStage(ctx, t, L) {
   const tin = prog(t, T.lits - 0.2, 0.55, ease.outCubic);
   const tout = prog(t, T.nobuild - 0.35, 0.5);
   const ta = tin * (1 - tout);
-  if (ta > 0) {
+  if (ta > 0.001) {
     const K = 1.3, w = 640, x = 960 - w / 2, y = 450;
     const eu = prog(t, T.cache + 0.1, 0.45);
     let ct;

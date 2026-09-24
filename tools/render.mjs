@@ -6,6 +6,8 @@
 //   render.mjs video [--from 0] [--to <end>] [--scene id] [--fps 60] [--scale 1] [--workers 10]
 //                    [--chunk 15] [--crf 18] [--preset slow] [--out out/lit-html-renders.mp4]
 //                    (resumable: chunks are kept in out/chunks/<source hash>-<fps>-<scale>/)
+//   render.mjs check [--from 0] [--to <end>] [--scene id] [--fps 60] [--workers 10]
+//                    draws every frame (tiny, not captured) and lists page errors
 //   render.mjs serve [--port 8123]          live preview at http://127.0.0.1:<port>/
 //
 // --scene <id> limits sheet/video to one scene's span (see timing/timeline.json).
@@ -87,7 +89,7 @@ function readBody(req) {
   });
 }
 
-// jobs: id -> { onFrame(i, buf), onDone(), onStill(name, buf), onFail(msg) }
+// jobs: id -> { onFrame(i, buf), onDone(), onStill(name, buf), onReport(buf), onFail(msg) }
 const jobs = new Map();
 
 function startServer(port = 0) {
@@ -115,6 +117,8 @@ function startServer(port = 0) {
         await job.onFrame(+url.searchParams.get("i"), body);
       } else if (p === "/still") {
         await job.onStill(url.searchParams.get("name"), body);
+      } else if (p === "/report") {
+        job.onReport(body);
       } else if (p === "/done") {
         job.onDone();
       } else if (p === "/fail") {
@@ -225,7 +229,7 @@ function sourceHash() {
     }
   };
   walk(join(REPO, "video"));
-  for (const f of [EPP.timeline, join(REPO, "truth/truth.json")]) h.update(f.slice(REPO.length)).update(readFileSync(f));
+  for (const f of [EPP.timeline, join(REPO, "truth/truth.json"), join(REPO, "truth/platform.json")]) h.update(f.slice(REPO.length)).update(readFileSync(f));
   return h.digest("hex").slice(0, 12);
 }
 
@@ -315,6 +319,54 @@ async function video(opt) {
   console.log(`${out}  (${to - from} frames; ${total} rendered in ${((Date.now() - t0) / 1000).toFixed(0)} s)`);
 }
 
+// ------------------------------------------------------------------- check
+
+// Draws every frame of the span once, at a tiny scale and without reading it
+// back, split over --workers pages, and lists each distinct page error with
+// the first frame that hit it: a minute's check before an hour's render.
+async function check(opt) {
+  const fps = +(opt.fps ?? 60);
+  const workers = +(opt.workers ?? 10);
+  const [t0s, t1s] = span(opt);
+  const from = Math.round(t0s * fps);
+  const to = Math.min(Math.ceil(DURATION * fps), Math.round(t1s * fps));
+  const per = Math.ceil((to - from) / workers);
+  const server = await startServer();
+  const port = server.address().port;
+  const t0 = Date.now();
+  const errors = new Map();
+  const note = (e) => {
+    const had = errors.get(e.error);
+    if (!had) errors.set(e.error, { ...e });
+    else {
+      had.frame = Math.min(had.frame, e.frame);
+      had.count += e.count;
+    }
+  };
+  await Promise.all(Array.from({ length: workers }, (_, k) => new Promise((ok) => {
+    const a = from + k * per, b = Math.min(to, a + per);
+    if (a >= b) return ok();
+    const id = `check${k}`;
+    let done = false;
+    const finish = () => { done = true; browser.kill(); ok(); };
+    const browser = launchChromium(pageUrl(port, { mode: "check", job: id, from: a, to: b, scale: opt.scale ?? "0.1", fps }));
+    jobs.set(id, {
+      onReport: (buf) => JSON.parse(buf).forEach(note),
+      onDone: finish,
+      onFail: (msg) => { note({ error: `page failed: ${msg}`, frame: a, count: 1 }); finish(); },
+    });
+    browser.on("exit", () => {
+      if (!done) note({ error: `chromium died: ${browser.lastErr().slice(-300)}`, frame: a, count: 1 });
+      ok();
+    });
+  })));
+  server.close();
+  const list = [...errors.values()].sort((x, y) => x.frame - y.frame);
+  for (const e of list) console.log(`frame ${e.frame} (${(e.frame / fps).toFixed(2)} s, ${e.count}x): ${e.error}`);
+  console.log(`${to - from} frames checked in ${((Date.now() - t0) / 1000).toFixed(0)} s: ${list.length ? `${list.length} distinct errors` : "no errors"}`);
+  if (list.length) process.exitCode = 1;
+}
+
 // ------------------------------------------------------------ contact sheet
 
 // A grid of small stills from --from to --to (or one --scene) every --step
@@ -349,9 +401,10 @@ const { pos, opt } = parseArgs(process.argv.slice(2));
 const cmd = pos.shift();
 if (cmd === "still") await stills(pos, opt);
 else if (cmd === "video") await video(opt);
+else if (cmd === "check") await check(opt);
 else if (cmd === "serve") await serve(opt);
 else if (cmd === "sheet") await sheet(opt);
 else {
-  console.error("usage: render.mjs still <t>... | sheet [--scene id] | video [--scene id --fps n --scale k] | serve");
+  console.error("usage: render.mjs still <t>... | sheet [--scene id] | video [--scene id --fps n --scale k] | check | serve");
   process.exit(2);
 }
