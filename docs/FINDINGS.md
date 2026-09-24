@@ -62,6 +62,13 @@ Possible fixes, for the team to weigh:
   why an ownership check, or a flag set by `insertPart`, is safer);
 - or have `repeat` remove the end marker itself after `removePart`.
 
+Checked in Chromium 150 with the dev build patched to add
+`part._$endNode?.remove()` to `removePart`: the list keeps exactly two
+markers per item through removals (`abc` → `ac`: 6 → 4), a reorder with an
+insertion (`cadb`: 8), a shrink to one item (`d`: 2), and ten add/remove
+cycles (4), with items in the right order and content after the list
+untouched.
+
 The explorer's `repeat` preset shows the leftover comment ("left behind").
 
 ## 2. HTML now has processing instructions; lit-html's marker still parses as a comment
