@@ -49,7 +49,7 @@ And values are never parsed as HTML.
 Text goes into text nodes, and attributes go through setAttribute.
 
 00:01:32.531 --> 00:01:40.200
-So a user's string can't turn into markup, unless you ask for that on purpose, with unsafe HTML.
+So a user's string can't turn into markup, unless you ask for that on purpose, with unsafeHTML.
 
 00:01:40.240 --> 00:01:42.422
 Next, HTML.
@@ -106,7 +106,7 @@ That's the DOM's own copy operation.
 Nothing is parsed again, and the copies belong to the page's document.
 
 00:03:18.430 --> 00:03:22.194
-To find its places in the copy, it uses a tree walker.
+To find its places in the copy, it uses a TreeWalker.
 
 00:03:22.194 --> 00:03:29.240
 There's just one, created when lit-html loads, with a filter that shows only elements and comments.
@@ -124,16 +124,16 @@ And comments make good anchors.
 They can sit anywhere content can, the parser keeps them, and they never render.
 
 00:03:48.591 --> 00:03:56.139
-A child part's content lives right after its comment, and new nodes go in with insert before.
+A child part's content lives right after its comment, and new nodes go in with insertBefore.
 
 00:03:56.160 --> 00:04:01.585
-Event bindings use a feature of add event listener that's easy to miss.
+Event bindings use a feature of addEventListener that's easy to miss.
 
 00:04:01.585 --> 00:04:04.047
 The listener doesn't have to be a function.
 
 00:04:04.047 --> 00:04:08.270
-It can be any object with a handle event method.
+It can be any object with a handleEvent method.
 
 00:04:08.270 --> 00:04:15.436
 lit-html's event part registers itself, and calls whichever function it holds right now.
@@ -175,7 +175,7 @@ There's no class name rewriting, and no global stylesheet to manage.
 Constructable stylesheets.
 
 00:05:14.772 --> 00:05:24.240
-Styles written with Lit's css tag become one CSS style sheet object, shared by every instance, through adopted style sheets.
+Styles written with Lit's css tag become one CSSStyleSheet object, shared by every instance, through adoptedStyleSheets.
 
 00:05:24.240 --> 00:05:28.263
 A thousand instances, one parsed stylesheet.
@@ -190,7 +190,7 @@ Last, timing.
 Set three properties on a Lit element, one after another, and it renders once.
 
 00:05:44.610 --> 00:05:52.319
-Each change calls request update, which records the change, and if no update is pending, starts one.
+Each change calls requestUpdate, which records the change, and if no update is pending, starts one.
 
 00:05:52.319 --> 00:05:58.286
 That update begins by awaiting a promise, which lets the rest of your code run first.
@@ -205,7 +205,7 @@ Code after an await runs in a microtask, which runs before the browser gets a ch
 So nobody ever sees a half-updated element.
 
 00:06:11.773 --> 00:06:17.600
-And update complete is that same promise, so your tests can await it.
+And updateComplete is that same promise, so your tests can await it.
 
 00:06:17.622 --> 00:06:20.390
 So here's what the browser does for Lit.
@@ -217,7 +217,7 @@ JavaScript's tagged templates split static from dynamic, and hand over a cache k
 The HTML parser and the template element turn strings into inert DOM.
 
 00:06:32.718 --> 00:06:37.221
-Import node and the tree walker copy it and find the holes.
+importNode and the TreeWalker copy it and find the holes.
 
 00:06:37.221 --> 00:06:38.862
 Comments hold places.
@@ -226,7 +226,7 @@ Comments hold places.
 Listener objects make swapping handlers cheap.
 
 00:06:42.064 --> 00:06:48.168
-Custom elements, shadow DOM and adopted style sheets give you components with scoped styles.
+Custom elements, shadow DOM and adoptedStyleSheets give you components with scoped styles.
 
 00:06:48.168 --> 00:06:50.891
 And microtasks batch the updates.

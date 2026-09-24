@@ -52,11 +52,22 @@ CAPTION_TEXT = [
     ("lit HTML", "lit-html"),
     ("inner HTML", "innerHTML"),
     ("import node", "importNode"),
+    ("Import node", "importNode"),
     ("set attribute", "setAttribute"),
     ("dollar, lit, dollar,", "$lit$"),
     ("at-click", "@click"),
     ("template result", "TemplateResult"),
     ("template instance", "TemplateInstance"),
+    # episode 2
+    ("tree walker", "TreeWalker"),
+    ("add event listener", "addEventListener"),
+    ("handle event", "handleEvent"),
+    ("request update", "requestUpdate"),
+    ("update complete", "updateComplete"),
+    ("adopted style sheets", "adoptedStyleSheets"),
+    ("CSS style sheet", "CSSStyleSheet"),
+    ("unsafe HTML", "unsafeHTML"),
+    ("insert before", "insertBefore"),
 ]
 
 
