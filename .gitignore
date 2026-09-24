@@ -1,0 +1,6 @@
+/out/
+/cache/
+/result*
+/.direnv/
+__pycache__/
+node_modules/
