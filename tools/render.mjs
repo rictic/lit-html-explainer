@@ -63,6 +63,7 @@ const TYPES = {
 };
 
 function serveFile(res, path) {
+  if (existsSync(path) && statSync(path).isDirectory()) path = join(path, "index.html");
   if (!existsSync(path) || !statSync(path).isFile()) {
     res.writeHead(404).end("not found");
     return;
@@ -94,6 +95,9 @@ function startServer(port = 0) {
         if (p === "/soundtrack.m4a") return serveFile(res, AUDIO);
         if (p.startsWith("/fonts/")) return serveFile(res, join(FONTS, p.slice(7)));
         if (p.startsWith("/video/") || p.startsWith("/timing/") || p.startsWith("/truth/")) return serveFile(res, join(REPO, p));
+        // the explorer (with Lit from the flake) and the site pages, for `serve`
+        if (p.startsWith("/explorer/vendor/")) return serveFile(res, join(process.env.LIT_VENDOR ?? "", p.slice(17)));
+        if (p.startsWith("/explorer/") || p.startsWith("/site/")) return serveFile(res, join(REPO, p));
         return res.writeHead(404).end();
       }
       const job = jobs.get(url.searchParams.get("job"));
