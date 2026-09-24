@@ -133,6 +133,13 @@ function startServer(port = 0) {
   return new Promise((ok) => server.listen(port, "127.0.0.1", () => ok(server)));
 }
 
+// Every browser still running. They are killed when this process ends, for
+// whatever reason: a page error rejects one chunk and ends the render, and
+// the other workers' browsers would otherwise keep drawing for nobody.
+const browsers = new Set();
+process.on("exit", () => browsers.forEach((b) => b.kill()));
+for (const [sig, code] of [["SIGINT", 130], ["SIGTERM", 143]]) process.on(sig, () => process.exit(code));
+
 function launchChromium(url) {
   const profile = mkdtempSync(join(tmpdir(), "lit-explainer-chromium-"));
   const proc = spawn("chromium", [
@@ -145,7 +152,11 @@ function launchChromium(url) {
   ], { stdio: ["ignore", "ignore", "pipe"] });
   let err = "";
   proc.stderr.on("data", (b) => { err = (err + b).slice(-4000); });
-  proc.on("exit", () => rmSync(profile, { recursive: true, force: true }));
+  browsers.add(proc);
+  proc.on("exit", () => {
+    browsers.delete(proc);
+    rmSync(profile, { recursive: true, force: true });
+  });
   proc.lastErr = () => err;
   return proc;
 }
