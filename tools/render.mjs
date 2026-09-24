@@ -4,7 +4,8 @@
 //   render.mjs still <t> [<t> ...] [--scale 0.5] [--out out/stills]
 //   render.mjs sheet [--from s --to s --step 2 --cols 6] [--scene id]   contact sheet of stills
 //   render.mjs video [--from 0] [--to <end>] [--scene id] [--fps 60] [--scale 1] [--workers 10]
-//                    [--crf 18] [--preset slow] [--out out/lit-html-renders.mp4]
+//                    [--chunk 15] [--crf 18] [--preset slow] [--out out/lit-html-renders.mp4]
+//                    (resumable: chunks are kept in out/chunks/<source hash>-<fps>-<scale>/)
 //   render.mjs serve [--port 8123]          live preview at http://127.0.0.1:<port>/
 //
 // --scene <id> limits sheet/video to one scene's span (see timing/timeline.json).
@@ -16,7 +17,8 @@
 // start anywhere and the output is the same.
 
 import { spawn } from "node:child_process";
-import { createReadStream, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { createReadStream, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, extname, join, resolve } from "node:path";
@@ -57,7 +59,7 @@ function parseArgs(argv) {
 
 const TYPES = {
   ".html": "text/html", ".js": "text/javascript", ".json": "application/json",
-  ".ttf": "font/ttf", ".wav": "audio/wav", ".m4a": "audio/mp4", ".png": "image/png", ".css": "text/css",
+  ".ttf": "font/ttf", ".wav": "audio/wav", ".flac": "audio/flac", ".m4a": "audio/mp4", ".png": "image/png", ".css": "text/css",
 };
 
 function serveFile(res, path) {
@@ -201,67 +203,99 @@ function ffmpegChunk(path, scale, fps, { crf = "18", preset = "slow" } = {}) {
   ], { stdio: ["pipe", "inherit", "inherit"] });
 }
 
+// A hash of everything a frame depends on: the page's code and data. Chunks
+// are cached under it, so an interrupted render resumes where it stopped and
+// a code change starts afresh.
+function sourceHash() {
+  const h = createHash("sha256");
+  const walk = (dir) => {
+    for (const name of readdirSync(dir).sort()) {
+      const p = join(dir, name);
+      if (statSync(p).isDirectory()) walk(p);
+      else h.update(p.slice(REPO.length)).update(readFileSync(p));
+    }
+  };
+  walk(join(REPO, "video"));
+  for (const f of ["timing/timeline.json", "truth/truth.json"]) h.update(f).update(readFileSync(join(REPO, f)));
+  return h.digest("hex").slice(0, 12);
+}
+
+// Renders frames [from, to) into short chunks, --workers at a time, then
+// joins them and muxes the soundtrack. Finished chunks survive a crash:
+// run the same command again and only the missing ones are rendered.
 async function video(opt) {
   const scale = +(opt.scale ?? 1);
   const fps = +(opt.fps ?? 60);
   const workers = +(opt.workers ?? 10);
+  const chunkFrames = Math.round(+(opt.chunk ?? 15) * fps);
   const [t0s, t1s] = span(opt);
   const from = Math.round(t0s * fps);
   const to = Math.min(Math.ceil(DURATION * fps), Math.round(t1s * fps));
   const out = resolve(opt.out ?? join(REPO, opt.scene ? `out/scene-${opt.scene}.mp4` : "out/lit-html-renders.mp4"));
-  const work = mkdtempSync(join(opt.tmp ?? tmpdir(), "lit-explainer-chunks-"));
+  const dir = join(REPO, "out/chunks", `${sourceHash()}-${fps}fps-${scale}x`);
+  mkdirSync(dir, { recursive: true });
   mkdirSync(dirname(out), { recursive: true });
+
+  const chunks = [];
+  for (let a = from; a < to; a += chunkFrames) {
+    const b = Math.min(to, a + chunkFrames);
+    chunks.push({ a, b, path: join(dir, `c${String(a).padStart(6, "0")}-${String(b).padStart(6, "0")}.mp4`) });
+  }
+  const todo = chunks.filter((c) => !existsSync(c.path));
+  const total = todo.reduce((n, c) => n + c.b - c.a, 0);
+  console.log(`${chunks.length} chunks in ${dir}, ${todo.length} to render (${total} frames)`);
 
   const server = await startServer();
   const port = server.address().port;
-  const per = Math.ceil((to - from) / workers);
-  const chunks = [];
   const t0 = Date.now();
   let rendered = 0;
   const progress = setInterval(() => {
-    const el = (Date.now() - t0) / 1000;
-    const rate = rendered / el;
-    console.log(`${rendered}/${to - from} frames  ${rate.toFixed(1)} fps  eta ${((to - from - rendered) / rate / 60).toFixed(1)} min`);
+    const rate = rendered / ((Date.now() - t0) / 1000);
+    console.log(`${rendered}/${total} frames  ${rate.toFixed(1)} fps  eta ${((total - rendered) / rate / 60).toFixed(1)} min`);
   }, 15_000);
 
-  await Promise.all(Array.from({ length: workers }, (_, k) => {
-    const a = from + k * per, b = Math.min(to, a + per);
-    if (a >= b) return null;
-    const path = join(work, `chunk${String(k).padStart(3, "0")}.mp4`);
-    chunks.push(path);
-    const enc = ffmpegChunk(path, scale, fps, { crf: opt.crf, preset: opt.preset });
-    const id = `w${k}`;
-    let next = a;
-    return new Promise((ok, fail) => {
-      jobs.set(id, {
-        onFrame: (i, buf) => {
-          if (i !== next) throw new Error(`${id}: frame ${i}, expected ${next}`);
-          next++;
-          rendered++;
-          return new Promise((drained) => (enc.stdin.write(buf) ? drained() : enc.stdin.once("drain", drained)));
-        },
-        onDone: () => {
-          enc.stdin.end();
-          enc.on("exit", (code) => (code === 0 ? ok() : fail(new Error(`ffmpeg ${id} exit ${code}`))));
-          browser.kill();
-        },
-        onFail: (msg) => {
-          browser.kill();
-          enc.kill();
-          fail(new Error(`${id}: page error at frame ${next}: ${msg}`));
-        },
-      });
-      const browser = launchChromium(pageUrl(port, { mode: "capture", job: id, from: a, to: b, scale, fps }));
-      browser.on("exit", () => {
-        if (next < b) fail(new Error(`chromium ${id} died at frame ${next}: ${browser.lastErr()}`));
-      });
+  const renderChunk = (c, k) => new Promise((ok, fail) => {
+    const partial = c.path.replace(/\.mp4$/, ".partial.mp4");
+    const enc = ffmpegChunk(partial, scale, fps, { crf: opt.crf, preset: opt.preset });
+    const id = `w${k}-${c.a}`;
+    let next = c.a;
+    const browser = launchChromium(pageUrl(port, { mode: "capture", job: id, from: c.a, to: c.b, scale, fps }));
+    jobs.set(id, {
+      onFrame: (i, buf) => {
+        if (i !== next) throw new Error(`${id}: frame ${i}, expected ${next}`);
+        next++;
+        rendered++;
+        return new Promise((drained) => (enc.stdin.write(buf) ? drained() : enc.stdin.once("drain", drained)));
+      },
+      onDone: () => {
+        enc.stdin.end();
+        enc.on("exit", (code) => {
+          if (code !== 0) return fail(new Error(`ffmpeg ${id} exit ${code}`));
+          renameSync(partial, c.path);
+          ok();
+        });
+        browser.kill();
+      },
+      onFail: (msg) => {
+        browser.kill();
+        enc.kill();
+        fail(new Error(`${id}: page error at frame ${next}: ${msg}`));
+      },
     });
-  }).filter(Boolean));
+    browser.on("exit", () => {
+      if (next < c.b) fail(new Error(`chromium ${id} died at frame ${next}: ${browser.lastErr()}`));
+    });
+  });
+
+  let nextChunk = 0;
+  await Promise.all(Array.from({ length: Math.min(workers, todo.length) }, async (_, k) => {
+    while (nextChunk < todo.length) await renderChunk(todo[nextChunk++], k);
+  }));
   clearInterval(progress);
   server.close();
 
-  const list = join(work, "chunks.txt");
-  writeFileSync(list, chunks.sort().map((c) => `file '${c}'`).join("\n") + "\n");
+  const list = join(dir, `list-${from}-${to}.txt`);
+  writeFileSync(list, chunks.map((c) => `file '${c.path}'`).join("\n") + "\n");
   const tStart = from / fps, dur = (to - from) / fps;
   await new Promise((ok, fail) => spawn("ffmpeg", [
     "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", list,
@@ -269,8 +303,7 @@ async function video(opt) {
     "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
     "-metadata", "title=How lit-html renders", "-movflags", "+faststart", "-shortest", out,
   ], { stdio: "inherit" }).on("exit", (c) => (c === 0 ? ok() : fail(new Error(`mux exit ${c}`)))));
-  rmSync(work, { recursive: true, force: true });
-  console.log(`${out}  (${to - from} frames in ${((Date.now() - t0) / 1000).toFixed(0)} s)`);
+  console.log(`${out}  (${to - from} frames; ${total} rendered in ${((Date.now() - t0) / 1000).toFixed(0)} s)`);
 }
 
 // ------------------------------------------------------------ contact sheet

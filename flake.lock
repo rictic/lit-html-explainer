@@ -16,9 +16,35 @@
         "type": "github"
       }
     },
+    "poster": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-TpCaymW7roB7EyId64RCfxB1qjmpqlwfPy9BFoGGXW8=",
+        "type": "file",
+        "url": "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/f785f5347917619410dee933436422fe/poster.jpg"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/f785f5347917619410dee933436422fe/poster.jpg"
+      }
+    },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "poster": "poster",
+        "soundtrack": "soundtrack"
+      }
+    },
+    "soundtrack": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-+3e8QJyOO/+f+KBM7n2VXE7C8gr55VU+byUN2MDa9Mc=",
+        "type": "file",
+        "url": "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/94b925e76c39821e70b52142cd0a43e1/soundtrack.flac"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://code.rictic.com/api/packages/agent-1/generic/lit-html-explainer/94b925e76c39821e70b52142cd0a43e1/soundtrack.flac"
       }
     }
   },

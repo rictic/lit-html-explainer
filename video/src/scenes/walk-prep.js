@@ -518,18 +518,28 @@ function drawBox(ctx, t) {
     if (row.kind === "text") a *= lerp(1, 0.32, dim);
     return { alpha: a };
   };
-  const drawTree = () => {
+  const drawTree = (c) => {
     // #document-fragment: the template's content
-    text(ctx, "#document-fragment", X0, FRAG_Y + LH / 2 + 1, { font: mono(TS, 450), color: C.text3, baseline: "middle" });
-    tr.draw(ctx, tx, TREE_Y, { style, rowStyle });
+    text(c, "#document-fragment", X0, FRAG_Y + LH / 2 + 1, { font: mono(TS, 450), color: C.text3, baseline: "middle" });
+    tr.draw(c, tx, TREE_Y, { style, rowStyle });
   };
   if (frost > 0.001) {
+    // A canvas filter runs once per draw call, and on a software canvas that
+    // is slow for the dozens of text runs in the tree (the render crawled at
+    // under 1 fps here). So draw the tree into a layer and filter it once.
+    const L = frostLayer(ctx);
+    L.setTransform(1, 0, 0, 1, 0, 0);
+    L.clearRect(0, 0, L.canvas.width, L.canvas.height);
+    L.setTransform(ctx.getTransform());
+    drawTree(L);
     ctx.save();
-    ctx.filter = `saturate(${(1 - 0.9 * frost).toFixed(3)}) blur(${(1.1 * frost).toFixed(2)}px)`;
+    const s = ctx.getTransform().a;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.filter = `saturate(${(1 - 0.9 * frost).toFixed(3)}) blur(${(1.1 * frost * s).toFixed(2)}px)`;
     ctx.globalAlpha *= lerp(1, 0.7, frost);
-    drawTree();
+    ctx.drawImage(L.canvas, 0, 0);
     ctx.restore();
-  } else drawTree();
+  } else drawTree(ctx);
 
   // the parse sweep line
   if (sweepU > 0 && sweepU < 1) {
@@ -1069,4 +1079,14 @@ function drawCache(ctx, t, box) {
     text(ctx, "however many renders,", x + 10 * (1 - r2), y + 70, { font: sans(36, 500), color: C.text2, alpha: r2 });
     text(ctx, "however many places", x + 10 * (1 - r3), y + 122, { font: sans(36, 500), color: C.text2, alpha: r3 });
   }
+}
+
+// An offscreen layer the size of ctx's canvas (for filtering a group once).
+let FROST = null;
+function frostLayer(ctx) {
+  const { width, height } = ctx.canvas;
+  if (!FROST || FROST.canvas.width !== width || FROST.canvas.height !== height) {
+    FROST = new OffscreenCanvas(width, height).getContext("2d");
+  }
+  return FROST;
 }
