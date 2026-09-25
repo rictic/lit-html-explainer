@@ -1,0 +1,245 @@
+WEBVTT
+
+00:00:00.571 --> 00:00:04.838
+In the last video, we followed one template through lit-html.
+
+00:00:04.838 --> 00:00:11.920
+At almost every step, the hard work was done by the browser: parsing, copying, walking the DOM.
+
+00:00:11.920 --> 00:00:18.008
+That's a big part of why lit-html is small: about three kilobytes, compressed.
+
+00:00:18.008 --> 00:00:22.393
+All of Lit, with its component base class, is about six.
+
+00:00:22.393 --> 00:00:28.960
+This video is a tour of the platform features underneath it, and what each one does for Lit.
+
+00:00:30.160 --> 00:00:32.282
+It starts in JavaScript.
+
+00:00:32.282 --> 00:00:39.068
+When the engine parses a tagged template literal, it has already split the fixed strings from the expressions.
+
+00:00:39.068 --> 00:00:47.375
+And the language spec makes a promise about those strings: each template literal in your code gets exactly one strings array.
+
+00:00:47.375 --> 00:00:54.011
+It's created once, it's frozen, and the same array is passed every time that literal runs.
+
+00:00:54.011 --> 00:00:58.178
+That array is lit-html's cache key, for free.
+
+00:00:58.178 --> 00:01:05.190
+It's also why Lit doesn't need a build step: the engine has already separated what never changes from what does.
+
+00:01:05.190 --> 00:01:11.697
+The array has one more feature: a raw property, with the strings exactly as written.
+
+00:01:11.697 --> 00:01:18.965
+Before lit-html treats the strings as trusted HTML, it checks that raw is there.
+
+00:01:18.965 --> 00:01:24.020
+An object that came from JSON can't have it, so data can't pose as a template.
+
+00:01:24.020 --> 00:01:27.425
+And values are never parsed as HTML.
+
+00:01:27.425 --> 00:01:32.531
+Text goes into text nodes, and attributes go through setAttribute.
+
+00:01:32.531 --> 00:01:40.200
+So a user's string can't turn into markup, unless you ask for that on purpose, with unsafeHTML.
+
+00:01:40.240 --> 00:01:42.422
+Next, HTML.
+
+00:01:42.422 --> 00:01:45.806
+lit-html doesn't parse HTML itself.
+
+00:01:45.806 --> 00:01:51.131
+It builds one string, and sets it as a template element's innerHTML.
+
+00:01:51.131 --> 00:02:00.250
+The browser's parser is native code, it's fast, and it follows the spec exactly, including all the irregular ways real pages write HTML.
+
+00:02:00.250 --> 00:02:02.854
+What comes out is inert.
+
+00:02:02.854 --> 00:02:08.482
+A template's contents belong to a separate document, with no browsing context.
+
+00:02:08.482 --> 00:02:14.660
+So scripts don't run, images don't load, and custom elements don't upgrade.
+
+00:02:14.660 --> 00:02:16.982
+And those question mark markers?
+
+00:02:16.982 --> 00:02:23.668
+For years, the parser turned anything starting with angle bracket, question mark, into a comment.
+
+00:02:23.668 --> 00:02:30.854
+But this year, HTML gained real processing instructions, as part of streaming content into place.
+
+00:02:30.854 --> 00:02:38.560
+Now, in the spec and in Chrome, angle bracket, question mark, marker, becomes a processing instruction node.
+
+00:02:38.560 --> 00:02:42.283
+lit-html's markers still come out as comments.
+
+00:02:42.283 --> 00:02:48.749
+A processing instruction's name can only use letters, digits, hyphens and underscores.
+
+00:02:48.749 --> 00:02:58.137
+When the parser meets the first dollar sign, the name is invalid, and the spec says to turn what it has read into a comment, starting with the question mark.
+
+00:02:58.137 --> 00:03:02.300
+That's exactly the comment lit-html looks for.
+
+00:03:02.400 --> 00:03:10.731
+To stamp out a template, lit-html calls importNode on its contents, with deep set to true.
+
+00:03:10.731 --> 00:03:13.794
+That's the DOM's own copy operation.
+
+00:03:13.794 --> 00:03:18.430
+Nothing is parsed again, and the copies belong to the page's document.
+
+00:03:18.430 --> 00:03:22.194
+To find its places in the copy, it uses a TreeWalker.
+
+00:03:22.194 --> 00:03:29.240
+There's just one, created when lit-html loads, with a filter that shows only elements and comments.
+
+00:03:29.240 --> 00:03:36.567
+That filter is a bit mask: one bit for elements, and the bit worth one hundred and twenty eight, for comments.
+
+00:03:36.567 --> 00:03:40.160
+The walker skips every text node in native code.
+
+00:03:40.160 --> 00:03:42.623
+And comments make good anchors.
+
+00:03:42.623 --> 00:03:48.591
+They can sit anywhere content can, the parser keeps them, and they never render.
+
+00:03:48.591 --> 00:03:56.139
+A child part's content lives right after its comment, and new nodes go in with insertBefore.
+
+00:03:56.160 --> 00:04:01.585
+Event bindings use a feature of addEventListener that's easy to miss.
+
+00:04:01.585 --> 00:04:04.047
+The listener doesn't have to be a function.
+
+00:04:04.047 --> 00:04:08.270
+It can be any object with a handleEvent method.
+
+00:04:08.270 --> 00:04:15.436
+lit-html's event part registers itself, and calls whichever function it holds right now.
+
+00:04:15.436 --> 00:04:20.300
+So a new arrow function on every render never touches the listener list.
+
+00:04:20.300 --> 00:04:26.770
+The same call takes an options argument, and lit-html passes your listener there too.
+
+00:04:26.770 --> 00:04:33.971
+So you can set capture, once, or passive as properties of the listener, right in the template.
+
+00:04:33.971 --> 00:04:37.340
+So far, that's all lit-html.
+
+00:04:37.340 --> 00:04:40.970
+Lit adds components, and those are the platform too.
+
+00:04:40.970 --> 00:04:42.552
+Custom elements.
+
+00:04:42.552 --> 00:04:52.345
+Define a class for a tag name, and the browser calls it back when an element is created, connected, or when an attribute it watches changes.
+
+00:04:52.345 --> 00:04:57.220
+Lit's reactive element turns those callbacks into reactive properties.
+
+00:04:57.220 --> 00:04:58.682
+Shadow DOM.
+
+00:04:58.682 --> 00:05:07.975
+Each element renders into its own shadow root, so its internal DOM and its styles are scoped to it, with slots for the children you pass in.
+
+00:05:07.975 --> 00:05:12.330
+There's no class name rewriting, and no global stylesheet to manage.
+
+00:05:12.330 --> 00:05:14.772
+Constructable stylesheets.
+
+00:05:14.772 --> 00:05:24.240
+Styles written with Lit's css tag become one CSSStyleSheet object, shared by every instance, through adoptedStyleSheets.
+
+00:05:24.240 --> 00:05:28.263
+A thousand instances, one parsed stylesheet.
+
+00:05:28.263 --> 00:05:37.410
+And a css literal with no expressions in it caches its sheet with the same trick as html: the strings array is the key.
+
+00:05:37.461 --> 00:05:39.366
+Last, timing.
+
+00:05:39.366 --> 00:05:44.610
+Set three properties on a Lit element, one after another, and it renders once.
+
+00:05:44.610 --> 00:05:52.319
+Each change calls requestUpdate, which records the change, and if no update is pending, starts one.
+
+00:05:52.319 --> 00:05:58.286
+That update begins by awaiting a promise, which lets the rest of your code run first.
+
+00:05:58.286 --> 00:06:01.820
+Then it renders once, with all three changes.
+
+00:06:01.820 --> 00:06:08.249
+Code after an await runs in a microtask, which runs before the browser gets a chance to paint.
+
+00:06:08.249 --> 00:06:11.773
+So nobody ever sees a half-updated element.
+
+00:06:11.773 --> 00:06:17.600
+And updateComplete is that same promise, so your tests can await it.
+
+00:06:17.622 --> 00:06:20.390
+So here's what the browser does for Lit.
+
+00:06:20.390 --> 00:06:27.235
+JavaScript's tagged templates split static from dynamic, and hand over a cache key.
+
+00:06:27.235 --> 00:06:32.718
+The HTML parser and the template element turn strings into inert DOM.
+
+00:06:32.718 --> 00:06:37.221
+importNode and the TreeWalker copy it and find the holes.
+
+00:06:37.221 --> 00:06:38.862
+Comments hold places.
+
+00:06:38.862 --> 00:06:42.064
+Listener objects make swapping handlers cheap.
+
+00:06:42.064 --> 00:06:48.168
+Custom elements, shadow DOM and adoptedStyleSheets give you components with scoped styles.
+
+00:06:48.168 --> 00:06:50.891
+And microtasks batch the updates.
+
+00:06:50.891 --> 00:06:54.858
+Much of Lit's own code is the glue between these features.
+
+00:06:54.858 --> 00:07:01.589
+That's why it's small, and why so much of its speed is native code that's already in your browser.
+
+00:07:01.611 --> 00:07:06.522
+To watch this happen to your own templates, try the lit-html explorer.
+
+00:07:06.522 --> 00:07:10.669
+Links to the specs and the source are on the page with this video.
+

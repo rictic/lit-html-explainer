@@ -60,7 +60,7 @@ Let's start with the template itself. {tag}The word html, right before the backt
 
 {h0}The first hole is in the value of the class attribute. {value}lit HTML puts the marker in the value, {suffix}and adds dollar, lit, dollar, to the attribute's name. {why}That makes the binding easy to find later, and the browser never sees a real class attribute full of marker text.
 
-{h1}The second hole is in text, inside the span. {pi}Here, the marker goes between angle brackets, after a question mark. {syntax}That's the syntax for a processing instruction, which HTML doesn't support, {bogus}so the parser turns it into a comment. {short}It's a few bytes shorter than writing out a comment.
+{h1}The second hole is in text, inside the span. {pi}Here, the marker goes between angle brackets, after a question mark. {syntax}That's the syntax for a processing instruction, {bogus}but the parser turns this one into a comment. {short}It's a few bytes shorter than writing out a comment.
 
 {h2}The third hole is the event binding. {attr}That's another attribute value, so it's handled just like the first.
 

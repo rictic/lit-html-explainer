@@ -6,9 +6,12 @@
 //   render.mjs video [--from 0] [--to <end>] [--scene id] [--fps 60] [--scale 1] [--workers 10]
 //                    [--chunk 15] [--crf 18] [--preset slow] [--out out/lit-html-renders.mp4]
 //                    (resumable: chunks are kept in out/chunks/<source hash>-<fps>-<scale>/)
+//   render.mjs check [--from 0] [--to <end>] [--scene id] [--fps 60] [--workers 10]
+//                    draws every frame (tiny, not captured) and lists page errors
 //   render.mjs serve [--port 8123]          live preview at http://127.0.0.1:<port>/
 //
 // --scene <id> limits sheet/video to one scene's span (see timing/timeline.json).
+// --episode <name> picks the episode (default renders; e.g. platform).
 //
 // The page (video/index.html) draws each frame on a canvas and POSTs the raw
 // pixels back here; each worker renders a contiguous chunk of frames into its
@@ -23,19 +26,23 @@ import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { episodeArg, episodePaths } from "../pipeline/episode.mjs";
 
 const REPO = resolve(process.env.LIT_REPO ?? resolve(dirname(fileURLToPath(import.meta.url)), ".."));
 const W = 1920, H = 1080;
 const FONTS = process.env.LIT_FONTS;
-// The soundtrack: a pinned copy (flake input), or the one pipeline/mix.py
-// wrote, or failing that the bare narration from pipeline/timeline.py.
-const AUDIO = process.env.LIT_AUDIO ??
-  [join(REPO, "out/soundtrack.wav"), join(REPO, "out/narration.wav")].find((p) => existsSync(p));
+// Which episode: --episode platform (default: episode 1, "renders").
+const EPISODE = episodeArg();
+const EPP = episodePaths(REPO, EPISODE);
+// The soundtrack: a pinned copy (flake input, episode 1), or the one
+// pipeline/mix.py wrote, or failing that the bare narration from timeline.py.
+const AUDIO = (EPISODE === "renders" ? process.env.LIT_AUDIO : undefined) ??
+  [EPP.soundtrack, EPP.narration].find((p) => existsSync(p));
 if (!FONTS) {
   console.error("LIT_FONTS unset: run inside `nix develop`");
   process.exit(1);
 }
-const TIMELINE = JSON.parse(readFileSync(join(REPO, "timing/timeline.json"), "utf8"));
+const TIMELINE = JSON.parse(readFileSync(EPP.timeline, "utf8"));
 const DURATION = TIMELINE.duration;
 
 // --scene id -> that scene's span; otherwise --from/--to (seconds).
@@ -63,6 +70,7 @@ const TYPES = {
 };
 
 function serveFile(res, path) {
+  if (existsSync(path) && statSync(path).isDirectory()) path = join(path, "index.html");
   if (!existsSync(path) || !statSync(path).isFile()) {
     res.writeHead(404).end("not found");
     return;
@@ -81,7 +89,7 @@ function readBody(req) {
   });
 }
 
-// jobs: id -> { onFrame(i, buf), onDone(), onStill(name, buf), onFail(msg) }
+// jobs: id -> { onFrame(i, buf), onDone(), onStill(name, buf), onReport(buf), onFail(msg) }
 const jobs = new Map();
 
 function startServer(port = 0) {
@@ -91,9 +99,12 @@ function startServer(port = 0) {
     try {
       if (req.method === "GET") {
         if (p === "/" ) return serveFile(res, join(REPO, "video/index.html"));
-        if (p === "/soundtrack.m4a") return serveFile(res, AUDIO);
-        if (p.startsWith("/fonts/")) return serveFile(res, join(FONTS, p.slice(7)));
+        if (p === "/soundtrack.m4a" || p === `/soundtrack-${EPISODE}.m4a`) return serveFile(res, AUDIO);
+        if (p.startsWith("/fonts/") || p.startsWith("/live/fonts/")) return serveFile(res, join(FONTS, p.slice(p.indexOf("/fonts/") + 7)));
         if (p.startsWith("/video/") || p.startsWith("/timing/") || p.startsWith("/truth/")) return serveFile(res, join(REPO, p));
+        // the explorer (with Lit from the flake) and the site pages, for `serve`
+        if (p.startsWith("/explorer/vendor/")) return serveFile(res, join(process.env.LIT_VENDOR ?? "", p.slice(17)));
+        if (p.startsWith("/explorer/") || p.startsWith("/site/")) return serveFile(res, join(REPO, p));
         return res.writeHead(404).end();
       }
       const job = jobs.get(url.searchParams.get("job"));
@@ -106,6 +117,8 @@ function startServer(port = 0) {
         await job.onFrame(+url.searchParams.get("i"), body);
       } else if (p === "/still") {
         await job.onStill(url.searchParams.get("name"), body);
+      } else if (p === "/report") {
+        job.onReport(body);
       } else if (p === "/done") {
         job.onDone();
       } else if (p === "/fail") {
@@ -120,6 +133,13 @@ function startServer(port = 0) {
   return new Promise((ok) => server.listen(port, "127.0.0.1", () => ok(server)));
 }
 
+// Every browser still running. They are killed when this process ends, for
+// whatever reason: a page error rejects one chunk and ends the render, and
+// the other workers' browsers would otherwise keep drawing for nobody.
+const browsers = new Set();
+process.on("exit", () => browsers.forEach((b) => b.kill()));
+for (const [sig, code] of [["SIGINT", 130], ["SIGTERM", 143]]) process.on(sig, () => process.exit(code));
+
 function launchChromium(url) {
   const profile = mkdtempSync(join(tmpdir(), "lit-explainer-chromium-"));
   const proc = spawn("chromium", [
@@ -132,13 +152,17 @@ function launchChromium(url) {
   ], { stdio: ["ignore", "ignore", "pipe"] });
   let err = "";
   proc.stderr.on("data", (b) => { err = (err + b).slice(-4000); });
-  proc.on("exit", () => rmSync(profile, { recursive: true, force: true }));
+  browsers.add(proc);
+  proc.on("exit", () => {
+    browsers.delete(proc);
+    rmSync(profile, { recursive: true, force: true });
+  });
   proc.lastErr = () => err;
   return proc;
 }
 
 function pageUrl(port, params) {
-  return `http://127.0.0.1:${port}/?${new URLSearchParams(params)}`;
+  return `http://127.0.0.1:${port}/?${new URLSearchParams({ ...params, ep: EPISODE })}`;
 }
 
 // ------------------------------------------------------------------ stills
@@ -216,7 +240,7 @@ function sourceHash() {
     }
   };
   walk(join(REPO, "video"));
-  for (const f of ["timing/timeline.json", "truth/truth.json"]) h.update(f).update(readFileSync(join(REPO, f)));
+  for (const f of [EPP.timeline, join(REPO, "truth/truth.json"), join(REPO, "truth/platform.json")]) h.update(f.slice(REPO.length)).update(readFileSync(f));
   return h.digest("hex").slice(0, 12);
 }
 
@@ -231,8 +255,8 @@ async function video(opt) {
   const [t0s, t1s] = span(opt);
   const from = Math.round(t0s * fps);
   const to = Math.min(Math.ceil(DURATION * fps), Math.round(t1s * fps));
-  const out = resolve(opt.out ?? join(REPO, opt.scene ? `out/scene-${opt.scene}.mp4` : "out/lit-html-renders.mp4"));
-  const dir = join(REPO, "out/chunks", `${sourceHash()}-${fps}fps-${scale}x`);
+  const out = resolve(opt.out ?? join(REPO, opt.scene ? `out/scene-${opt.scene}.mp4` : EPISODE === "renders" ? "out/lit-html-renders.mp4" : `out/${EPISODE}/${EPISODE}.mp4`));
+  const dir = join(REPO, "out/chunks", `${EPISODE}-${sourceHash()}-${fps}fps-${scale}x`);
   mkdirSync(dir, { recursive: true });
   mkdirSync(dirname(out), { recursive: true });
 
@@ -306,6 +330,54 @@ async function video(opt) {
   console.log(`${out}  (${to - from} frames; ${total} rendered in ${((Date.now() - t0) / 1000).toFixed(0)} s)`);
 }
 
+// ------------------------------------------------------------------- check
+
+// Draws every frame of the span once, at a tiny scale and without reading it
+// back, split over --workers pages, and lists each distinct page error with
+// the first frame that hit it: a minute's check before an hour's render.
+async function check(opt) {
+  const fps = +(opt.fps ?? 60);
+  const workers = +(opt.workers ?? 10);
+  const [t0s, t1s] = span(opt);
+  const from = Math.round(t0s * fps);
+  const to = Math.min(Math.ceil(DURATION * fps), Math.round(t1s * fps));
+  const per = Math.ceil((to - from) / workers);
+  const server = await startServer();
+  const port = server.address().port;
+  const t0 = Date.now();
+  const errors = new Map();
+  const note = (e) => {
+    const had = errors.get(e.error);
+    if (!had) errors.set(e.error, { ...e });
+    else {
+      had.frame = Math.min(had.frame, e.frame);
+      had.count += e.count;
+    }
+  };
+  await Promise.all(Array.from({ length: workers }, (_, k) => new Promise((ok) => {
+    const a = from + k * per, b = Math.min(to, a + per);
+    if (a >= b) return ok();
+    const id = `check${k}`;
+    let done = false;
+    const finish = () => { done = true; browser.kill(); ok(); };
+    const browser = launchChromium(pageUrl(port, { mode: "check", job: id, from: a, to: b, scale: opt.scale ?? "0.1", fps }));
+    jobs.set(id, {
+      onReport: (buf) => JSON.parse(buf).forEach(note),
+      onDone: finish,
+      onFail: (msg) => { note({ error: `page failed: ${msg}`, frame: a, count: 1 }); finish(); },
+    });
+    browser.on("exit", () => {
+      if (!done) note({ error: `chromium died: ${browser.lastErr().slice(-300)}`, frame: a, count: 1 });
+      ok();
+    });
+  })));
+  server.close();
+  const list = [...errors.values()].sort((x, y) => x.frame - y.frame);
+  for (const e of list) console.log(`frame ${e.frame} (${(e.frame / fps).toFixed(2)} s, ${e.count}x): ${e.error}`);
+  console.log(`${to - from} frames checked in ${((Date.now() - t0) / 1000).toFixed(0)} s: ${list.length ? `${list.length} distinct errors` : "no errors"}`);
+  if (list.length) process.exitCode = 1;
+}
+
 // ------------------------------------------------------------ contact sheet
 
 // A grid of small stills from --from to --to (or one --scene) every --step
@@ -340,9 +412,10 @@ const { pos, opt } = parseArgs(process.argv.slice(2));
 const cmd = pos.shift();
 if (cmd === "still") await stills(pos, opt);
 else if (cmd === "video") await video(opt);
+else if (cmd === "check") await check(opt);
 else if (cmd === "serve") await serve(opt);
 else if (cmd === "sheet") await sheet(opt);
 else {
-  console.error("usage: render.mjs still <t>... | sheet [--scene id] | video [--scene id --fps n --scale k] | serve");
+  console.error("usage: render.mjs still <t>... | sheet [--scene id] | video [--scene id --fps n --scale k] | check | serve");
   process.exit(2);
 }

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>lit-html explorer: the page</title>
+<!-- The explored page. Its document.body is the render container. User code
+     imports lit-html (or lit) through this import map: "lit-html" is
+     frame-lit-html.js (lit-html's development build, re-exported with html,
+     svg, mathml and render wrapped so the explorer sees every TemplateResult
+     and render call); everything else is the development build itself. -->
+<script type="importmap">
+{
+  "imports": {
+    "lit-html": "./frame-lit-html.js",
+    "lit-html/lit-html.js": "./frame-lit-html.js",
+    "lit-html/": "./vendor/lit-html/development/",
+    "lit": "./frame-lit-html.js",
+    "lit/directives/": "./vendor/lit-html/development/directives/",
+    "lit/directive.js": "./vendor/lit-html/development/directive.js",
+    "lit/async-directive.js": "./vendor/lit-html/development/async-directive.js",
+    "lit/directive-helpers.js": "./vendor/lit-html/development/directive-helpers.js",
+    "lit/static-html.js": "./vendor/lit-html/development/static.js"
+  }
+}
+</script>
+<style>
+  @font-face { font-family: Inter; src: url(../live/fonts/Inter.ttf), url(../fonts/Inter.ttf); font-weight: 100 900; }
+  :root { color-scheme: light; }
+  html { background: #f6f7fb; }
+  body { margin: 0; padding: 18px 22px; color: #1c2233; font: 17px/1.5 Inter, system-ui, sans-serif; }
+  button { font: 500 15px/1 Inter, system-ui, sans-serif; color: #1c2233; background: #e8ebf3; border: 1.5px solid #aab2c8;
+           border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+  button:hover { background: #dde2ee; }
+  button:active { background: #d0d6e4; }
+  button:disabled { opacity: .5; cursor: default; }
+  input, textarea { font: 15px/1.4 Inter, system-ui, sans-serif; color: #1c2233; background: #fff; border: 1.5px solid #aab2c8; border-radius: 7px; padding: 6px 9px; }
+  input:disabled, textarea:disabled { background: #eceef4; color: #7a8299; }
+  textarea { display: block; width: 260px; height: 3.2em; resize: none; }
+  label { display: inline-flex; gap: 8px; align-items: center; }
+  ul { margin: 6px 0; padding-left: 24px; }
+  li { margin: 2px 0; }
+  p { margin: 8px 0; }
+  header { display: flex; gap: 12px; align-items: center; }
+  /* the counter's style, as in lit's design doc (how-lit-html-works.md) */
+  .odd { color: #16a34a; text-decoration: underline; }
+  /* classes the "two bindings in one attribute" example uses */
+  .note { display: inline-block; padding: 6px 12px; border-radius: 8px; background: #e8ebf3; }
+  .small { font-size: 14px; }
+  .large { font-size: 22px; }
+  .tone-calm { background: #dcf3e6; color: #17603c; }
+  .tone-loud { background: #ffe0e9; color: #a3123e; }
+</style>
+<script type="module" src="./frame.js"></script>
+</head>
+<body></body>
+</html>

@@ -144,7 +144,6 @@ function schedule(S) {
     question: w(3, "question") - 0.12,
     syntax: m("syntax"),
     processing: w(3, "processing") - 0.25,
-    unsupported: w(3, "support") - 0.55,
     bogus: m("bogus"),
     comment: w(3, "comment", 0) - 0.45,
     short: w(3, "bytes") - 0.45,
@@ -881,7 +880,6 @@ function drawPI(ctx, t, T, G, Lc) {
     ], { x: G.X(h.col), y: G.Y(h.line), size: G.size }, { x: piX, y, size }, prog(t, T.syntax - 0.3, 0.85), 60);
     const lu = prog(t, T.processing, 0.4);
     text(ctx, "processing instruction", 560, y + 70, { font: sans(30, 650), color: C.text, align: "center", baseline: "middle", alpha: lu });
-    text(ctx, "not supported in HTML", 560, y + 112, { font: sans(24, 500), color: C.text3, align: "center", baseline: "middle", alpha: prog(t, T.unsupported, 0.4) });
 
     // → the parser → a comment
     const au = prog(t, T.bogus, 0.55);

@@ -4,15 +4,21 @@
 
 export const FPS = 30;
 
-let TL = null, TRUTH = null;
+// Which episode this page draws: ?ep=platform (default: episode 1, "renders").
+export const EPISODE = new URLSearchParams(globalThis.location?.search ?? "").get("ep") ?? "renders";
+const timelinePath = (ep) => (ep === "renders" ? "timing/timeline.json" : `timing/${ep}/timeline.json`);
+
+let TL = null, TRUTH = null, PLATFORM = null;
 
 export async function loadTiming() {
   const [tl, truth] = await Promise.all([
-    fetch("timing/timeline.json").then((r) => r.json()),
+    fetch(timelinePath(EPISODE)).then((r) => r.json()),
     fetch("truth/truth.json").then((r) => r.json()),
   ]);
   TL = tl;
   TRUTH = truth;
+  // Episode 2's platform facts (truth/platform.json, tools/truth.mjs --page platform).
+  if (EPISODE === "platform") PLATFORM = await fetch("truth/platform.json").then((r) => r.json());
   const byId = new Map();
   TL.scenes.forEach((s, i) => {
     s.index = i;
@@ -29,6 +35,7 @@ export async function loadTiming() {
 
 export const timeline = () => TL;
 export const truth = () => TRUTH;
+export const platformTruth = () => PLATFORM;
 export const duration = () => TL.duration;
 
 // Timing helpers for one scene. Scenes get one of these as `S`:

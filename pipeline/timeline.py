@@ -22,6 +22,8 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
+from episode import paths
+
 REPO = Path(__file__).resolve().parent.parent
 SR = 24000
 GAP = 0.5         # between paragraphs of a scene
@@ -50,11 +52,22 @@ CAPTION_TEXT = [
     ("lit HTML", "lit-html"),
     ("inner HTML", "innerHTML"),
     ("import node", "importNode"),
+    ("Import node", "importNode"),
     ("set attribute", "setAttribute"),
     ("dollar, lit, dollar,", "$lit$"),
     ("at-click", "@click"),
     ("template result", "TemplateResult"),
     ("template instance", "TemplateInstance"),
+    # episode 2
+    ("tree walker", "TreeWalker"),
+    ("add event listener", "addEventListener"),
+    ("handle event", "handleEvent"),
+    ("request update", "requestUpdate"),
+    ("update complete", "updateComplete"),
+    ("adopted style sheets", "adoptedStyleSheets"),
+    ("CSS style sheet", "CSSStyleSheet"),
+    ("unsafe HTML", "unsafeHTML"),
+    ("insert before", "insertBefore"),
 ]
 
 
@@ -80,7 +93,8 @@ def vtt_time(t):
 
 
 def main():
-    scenes = json.loads((REPO / "cache/paragraphs.json").read_text())
+    P = paths()
+    scenes = json.loads(P["paragraphs"].read_text())
     t = 0.0
     track = []
     out_scenes = []
@@ -119,22 +133,22 @@ def main():
                            "paragraphs": paragraphs, "marks": marks})
     duration = round(t, 3)
 
-    (REPO / "timing").mkdir(exist_ok=True)
-    write(REPO / "timing/timeline.json", json.dumps({"duration": duration, "scenes": out_scenes}, indent=1) + "\n")
+    P["timeline"].parent.mkdir(parents=True, exist_ok=True)
+    write(P["timeline"], json.dumps({"duration": duration, "scenes": out_scenes}, indent=1) + "\n")
 
     voice = np.zeros(int(np.ceil(duration * SR)) + 1, dtype=np.float32)
     for start, clip in track:
         i = int(round(start * SR))
         voice[i:i + len(clip)] += clip
-    (REPO / "out").mkdir(exist_ok=True)
-    write(REPO / "out/narration.wav", voice)
+    P["narration"].parent.mkdir(parents=True, exist_ok=True)
+    write(P["narration"], voice)
 
     vtt = ["WEBVTT", ""]
     for i, (s, e, text) in enumerate(cues):
         # hold each caption until the next begins (or a little past its last word)
         nxt = cues[i + 1][0] if i + 1 < len(cues) else e + 1.0
         vtt += [f"{vtt_time(s)} --> {vtt_time(min(nxt, e + 1.2))}", caption(text), ""]
-    write(REPO / "timing/captions.vtt", "\n".join(vtt) + "\n")
+    write(P["captions"], "\n".join(vtt) + "\n")
 
     for s in out_scenes:
         print(f"{s['id']:10s} {s['start']:7.2f} - {s['end']:7.2f}  ({s['end'] - s['start']:5.1f}s)")

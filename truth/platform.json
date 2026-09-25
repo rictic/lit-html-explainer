@@ -1,0 +1,117 @@
+{
+ "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/150.0.0.0 Safari/537.36",
+ "tagged": {
+  "strings": [
+   "<p>",
+   "</p>"
+  ],
+  "values": [
+   [
+    1
+   ],
+   [
+    2
+   ]
+  ],
+  "sameArray": true,
+  "otherLiteralSameText": false,
+  "frozen": true,
+  "rawFrozen": true,
+  "isArray": true,
+  "rawEnumerable": false,
+  "escape": {
+   "cooked": "<p>a\tb</p>",
+   "raw": "<p>a\\tb</p>"
+  },
+  "spoof": {
+   "threw": true,
+   "message": "Internal Error: expected template strings to be an array with a 'raw' field. Faking a template strings array by"
+  },
+  "textValue": {
+   "childNodes": [
+    8,
+    3
+   ],
+   "text": "<img src=x onerror=alert(1)>",
+   "imgs": 0
+  }
+ },
+ "parser": {
+  "marker": "lit$480592716$",
+  "results": [
+   {
+    "src": "<?lit$480592716$>",
+    "node": "Comment",
+    "data": "?lit$480592716$"
+   },
+   {
+    "src": "<?lit>",
+    "node": "ProcessingInstruction",
+    "target": "lit",
+    "data": ""
+   },
+   {
+    "src": "<?marker name=\"profile\">",
+    "node": "ProcessingInstruction",
+    "target": "marker",
+    "data": "name=\"profile\""
+   },
+   {
+    "src": "<?lit-html data>",
+    "node": "ProcessingInstruction",
+    "target": "lit-html",
+    "data": "data"
+   }
+  ],
+  "inert": {
+   "contentOwnerIsPage": false,
+   "contentOwnerHasWindow": false,
+   "elementUpgradedInTemplate": false,
+   "elementUpgradedAfterImport": true,
+   "scriptRanInTemplate": false,
+   "cloneOwnerIsPage": true
+  }
+ },
+ "walker": {
+  "SHOW_ELEMENT": 1,
+  "SHOW_COMMENT": 128,
+  "SHOW_TEXT": 4,
+  "SHOW_PROCESSING_INSTRUCTION": 64,
+  "mask": 129
+ },
+ "events": {
+  "rendersWithNewFunctions": 3,
+  "addEventListenerCalls": 1,
+  "calledOnClick": [
+   "third"
+  ],
+  "onceOption": {
+   "clicks": 2,
+   "calls": 1
+  }
+ },
+ "components": {
+  "shadowRoot": true,
+  "shadowMode": "open",
+  "renderRootIsShadowRoot": true,
+  "sharedSheet": true,
+  "sheetIsCSSStyleSheet": true,
+  "styleElements": 0,
+  "batching": {
+   "propertySets": 3,
+   "pendingAfterSets": true,
+   "rendersBeforeMicrotask": 0,
+   "rendersAfterUpdateComplete": 1,
+   "updateCompleteResolvedTo": true
+  },
+  "observedAttributes": [
+   "a",
+   "b",
+   "c"
+  ],
+  "cssCache": {
+   "sameResultObject": false,
+   "sameSheet": true
+  }
+ }
+}

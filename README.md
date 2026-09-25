@@ -59,5 +59,6 @@ node tools/truth.mjs                     # re-capture truth/truth.json
 
 node tools/render.mjs serve              # live preview on :8123 (?t=seconds)
 node tools/render.mjs sheet --scene walk --step 1   # contact sheet of one scene
+node tools/render.mjs check              # draw every frame once (seconds) and list page errors
 node tools/render.mjs video --fps 60     # the whole video, out/lit-html-renders.mp4
 ```

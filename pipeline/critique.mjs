@@ -14,6 +14,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseScript } from "./script.mjs";
 import { takeKey } from "./tts.mjs";
+import { episodeArg, episodePaths } from "./episode.mjs";
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const KEY = process.env.GEMINI_API_KEY;
@@ -88,7 +89,7 @@ async function main() {
 
   const dir = join(REPO, "cache/critique");
   mkdirSync(dir, { recursive: true });
-  const paragraphs = parseScript(join(REPO, "script/narration.md")).flatMap((s) => s.paragraphs)
+  const paragraphs = parseScript(episodePaths(REPO, episodeArg()).script).flatMap((s) => s.paragraphs)
     .filter((p) => !opt.only || `${p.scene}:${p.index}`.startsWith(opt.only));
   let next = 0;
   await Promise.all(Array.from({ length: 4 }, async () => {
